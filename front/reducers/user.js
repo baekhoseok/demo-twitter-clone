@@ -130,7 +130,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.unfollowNicknameError = null;
       break;
     case UNFOLLOW_SUCCESS:
-      consolg.log(action);
       draft.unfollowNicknameLoading = false;
       draft.unfollowNicknameDone = true;
       draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data);
