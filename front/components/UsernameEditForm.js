@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Form, Input } from 'antd';
 
-const NicknameEditForm = () => {
+const UsernameEditForm = () => {
   const style = useMemo(() => ({
     marginBottom: '20px',
     border: '1px solid @d9d9d9',
@@ -10,11 +10,11 @@ const NicknameEditForm = () => {
   }));
   return (
     <Form style={style}>
-      <Input.Search addonBefore="nickname" enterButton="edit" />
+      <Input.Search addonBefore="username" enterButton="edit" />
     </Form>
   );
 };
 
-NicknameEditForm.propTypes = {};
+UsernameEditForm.propTypes = {};
 
-export default NicknameEditForm;
+export default UsernameEditForm;

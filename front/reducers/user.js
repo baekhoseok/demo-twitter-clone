@@ -11,9 +11,9 @@ export const initialState = {
   signupLoading: false,
   signupDone: false,
   signupError: null,
-  changeNicknameLoading: false,
-  changeNicknameDone: false,
-  changeNicknameError: null,
+  changeUsernameLoading: false,
+  changeUsernameDone: false,
+  changeUsernameError: null,
   me: null,
   followLoading: false,
   followDone: false,
@@ -34,9 +34,9 @@ export const LOG_OUT_FAILURE = 'LOG_OUT_FAILURE';
 export const SIGN_UP_REQ = 'SIGN_UP_REQ';
 export const SIGN_UP_SUCCESS = 'SIGN_UP_SUCCESS';
 export const SIGN_UP_FAILURE = 'SIGN_UP_FAILURE';
-export const CHANGE_NICKNAME_REQ = 'CHANGE_NICKNAME_REQ';
-export const CHANGE_NICKNAME_SUCCESS = 'CHANGE_NICKNAME_SUCCESS';
-export const CHANGE_NICKNAME_FAILURE = 'CHANGE_NICKNAME_FAILURE';
+export const CHANGE_USERNAME_REQ = 'CHANGE_USERNAME_REQ';
+export const CHANGE_USERNAME_SUCCESS = 'CHANGE_USERNAME_SUCCESS';
+export const CHANGE_USERNAME_FAILURE = 'CHANGE_USERNAME_FAILURE';
 export const UNFOLLOW_REQ = 'UNFOLLOW_REQ';
 export const UNFOLLOW_SUCCESS = 'UNFOLLOW_SUCCESS';
 export const UNFOLLOW_FAILURE = 'UNFOLLOW_FAILURE';
@@ -46,7 +46,7 @@ export const FOLLOW_FAILURE = 'FOLLOW_FAILURE';
 
 const dummyUser = (data) => ({
   ...data,
-  nickname: 'hoseok',
+  username: 'pepe',
   id: 1,
   Posts: [],
   Followings: [],
@@ -75,7 +75,8 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case LOG_IN_SUCCESS:
       draft.loginLoading = false;
       draft.loginDone = true;
-      draft.me = dummyUser(action.data);
+      draft.me = action.data;
+      console.log(action.data);
       break;
     case LOG_IN_FAILURE:
       draft.loginLoading = false;
@@ -111,41 +112,41 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.signupLoading = false;
       draft.signupError = action.error;
       break;
-    case CHANGE_NICKNAME_REQ:
-      draft.changeNicknameLoading = true;
-      draft.changeNicknameDone = false;
-      draft.changeNicknameError = null;
+    case CHANGE_USERNAME_REQ:
+      draft.changeUsernameLoading = true;
+      draft.changeUsernameDone = false;
+      draft.changeUsernameError = null;
       break;
-    case CHANGE_NICKNAME_SUCCESS:
-      draft.changeNicknameLoading = false;
-      draft.changeNicknameDone = true;
+    case CHANGE_USERNAME_SUCCESS:
+      draft.changeUsernameLoading = false;
+      draft.changeUsernameDone = true;
       break;
-    case CHANGE_NICKNAME_FAILURE:
-      draft.changeNicknameLoading = false;
-      draft.changeNicknameError = action.error;
+    case CHANGE_USERNAME_FAILURE:
+      draft.changeUsernameLoading = false;
+      draft.changeUsernameError = action.error;
       break;
     case UNFOLLOW_REQ:
-      draft.unfollowNicknameLoading = true;
-      draft.unfollowNicknameDone = false;
-      draft.unfollowNicknameError = null;
+      draft.unfollowLoading = true;
+      draft.unfollowDone = false;
+      draft.unfollowError = null;
       break;
     case UNFOLLOW_SUCCESS:
-      draft.unfollowNicknameLoading = false;
-      draft.unfollowNicknameDone = true;
+      draft.unfollowLoading = false;
+      draft.unfollowDone = true;
       draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data);
       break;
     case UNFOLLOW_FAILURE:
-      draft.unfollowNicknameLoading = false;
-      draft.unfollowNicknameError = action.error;
+      draft.unfollowLoading = false;
+      draft.unfollowError = action.error;
       break;
     case FOLLOW_REQ:
-      draft.followNicknameLoading = true;
-      draft.followNicknameDone = false;
-      draft.followNicknameError = null;
+      draft.followLoading = true;
+      draft.followDone = false;
+      draft.followError = null;
       break;
     case FOLLOW_SUCCESS:
-      draft.followNicknameLoading = false;
-      draft.followNicknameDone = true;
+      draft.followLoading = false;
+      draft.followDone = true;
       draft.me.Followings.push({ id: action.data });
       break;
     case FOLLOW_FAILURE:

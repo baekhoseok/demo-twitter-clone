@@ -37,19 +37,19 @@ export const generateDummyPosts = (number) => Array(number).fill().map(() => ({
   Comments: [{
     User: {
       id: shortId.generate(),
-      nickname: faker.name.findName(),
+      username: faker.name.findName(),
     },
     content: faker.lorem.sentence(),
   }, {
     User: {
       id: shortId.generate(),
-      nickname: faker.name.findName(),
+      username: faker.name.findName(),
     },
     content: faker.lorem.sentence(),
   }, {
     User: {
       id: shortId.generate(),
-      nickname: faker.name.findName(),
+      username: faker.name.findName(),
     },
     content: faker.lorem.sentence(),
   }],

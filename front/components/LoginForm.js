@@ -18,23 +18,22 @@ const FromWrapper = styled(Form)`
 const LoginForm = () => {
   const dispatch = useDispatch();
   const { loginLoading } = useSelector((state) => state.user);
-  const [email, onChangeEmail] = useInput('');
+  const [username, onChangeUsername] = useInput('');
   const [password, onChangePassword] = useInput('');
 
   const onSubmit = useCallback(() => {
-    dispatch(loginReqAction({ email, password }));
-  }, [email, password]);
+    dispatch(loginReqAction({ username, password }));
+  }, [username, password]);
 
   return (
     <FromWrapper onFinish={onSubmit}>
       <div>
-        <label htmlFor="user-email">Email</label>
+        <label htmlFor="user-username">Username</label>
         <br />
         <Input
-          name="user-email"
-          type="email"
-          value={email}
-          onChange={onChangeEmail}
+          name="user-username"
+          value={username}
+          onChange={onChangeUsername}
           required
         />
       </div>
@@ -43,6 +42,7 @@ const LoginForm = () => {
         <br />
         <Input
           name="user-password"
+          type="password"
           value={password}
           onChange={onChangePassword}
           required
