@@ -1,6 +1,7 @@
 package me.hoseok.twitterdemo.security;
 
 import lombok.RequiredArgsConstructor;
+import me.hoseok.twitterdemo.common.CustomServletWrapperFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -18,7 +20,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final CustomAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

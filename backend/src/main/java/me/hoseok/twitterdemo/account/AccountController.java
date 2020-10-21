@@ -26,6 +26,7 @@ import static me.hoseok.twitterdemo.security.SecurityConstants.TOKEN_PREFIX;
 
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin
 @RequestMapping("/api/accounts")
 public class AccountController {
 
@@ -89,7 +90,10 @@ public class AccountController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = TOKEN_PREFIX + jwtTokenProvider.generateToken(authentication);
-        return ResponseEntity.ok(new JwtLoginSuccessResponse(jwt));
+        AccountMeDto accountMe = accountRepository.findAccountMe(req.getUsername());
+        accountMe.setToken(jwt);
+        return ResponseEntity.ok(accountMe);
+//        return ResponseEntity.ok(new JwtLoginSuccessResponse(jwt));
     }
 
     @PostMapping("/{targetId}/follow")

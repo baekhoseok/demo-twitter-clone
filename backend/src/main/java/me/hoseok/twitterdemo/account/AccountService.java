@@ -57,6 +57,7 @@ public class AccountService implements UserDetailsService {
 
     public Account processNewAccount(AccountSignupReq accountDto) {
         Account account = modelMapper.map( accountDto, Account.class );
+        account.encodePassword(passwordEncoder);
         return accountRepository.save( account );
     }
 

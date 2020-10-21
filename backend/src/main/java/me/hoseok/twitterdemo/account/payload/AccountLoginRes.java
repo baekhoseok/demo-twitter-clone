@@ -1,2 +1,4 @@
-package me.hoseok.twitterdemo.account.payload;public class AccountLoginRes {
+package me.hoseok.twitterdemo.account.payload;
+
+public class AccountLoginRes {
 }

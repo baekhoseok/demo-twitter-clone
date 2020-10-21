@@ -2,7 +2,9 @@ package me.hoseok.twitterdemo.account;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import me.hoseok.twitterdemo.account.payload.AccountFullDto;
+import me.hoseok.twitterdemo.account.payload.AccountMeDto;
 import me.hoseok.twitterdemo.account.payload.QAccountFullDto;
+import me.hoseok.twitterdemo.account.payload.QAccountMeDto;
 import me.hoseok.twitterdemo.follow.QFollow;
 import me.hoseok.twitterdemo.post.Post;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import static me.hoseok.twitterdemo.account.QAccount.*;
 import static me.hoseok.twitterdemo.follow.QFollow.*;
 
 public class AccountRepositoryImpl extends QuerydslRepositorySupport implements AccountReposirotyCustom{
+
 
     private final JPAQueryFactory queryFactory;
 
@@ -33,6 +36,14 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
                 account.followings.size(),
                 account.followers.size()
                 ))
+                .from(account)
+                .where(account.username.eq(username))
+                .fetchOne();
+    }
+
+    @Override
+    public AccountMeDto findAccountMe(String username) {
+        return queryFactory.select(new QAccountMeDto( account))
                 .from(account)
                 .where(account.username.eq(username))
                 .fetchOne();

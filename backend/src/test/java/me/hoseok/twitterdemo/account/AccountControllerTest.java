@@ -1,5 +1,6 @@
 package me.hoseok.twitterdemo.account;
 
+import me.hoseok.twitterdemo.account.payload.AccountLoginReq;
 import me.hoseok.twitterdemo.account.payload.AccountSignupReq;
 import me.hoseok.twitterdemo.account.payload.AccountUpdateReq;
 import me.hoseok.twitterdemo.common.BaseTest;
@@ -25,6 +26,46 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class AccountControllerTest extends BaseTest {
 
+
+    @Test
+    @DisplayName("Login")
+    @WithAccount("user")
+    public void login() throws Exception {
+        AccountLoginReq req = new AccountLoginReq("user", "12345678");
+        mockMvc.perform(post("/api/accounts/login")
+                        .content(objectMapper.writeValueAsString(req))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        )
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andDo(document("create-account",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                        ),
+                        requestFields(
+                                fieldWithPath("username").description("username of new account"),
+                                fieldWithPath("password").description("password of new account")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("id of my account"),
+                                fieldWithPath("username").description("username of my account"),
+                                fieldWithPath("email").description("email of my account"),
+                                fieldWithPath("followers").description("follower list of my account"),
+                                fieldWithPath("followings").description("following list of my account"),
+                                fieldWithPath("posts").description("post list of my account"),
+                                fieldWithPath("token").description("jwttoken of my account")
+                        )
+
+                ));
+
+
+
+    }
 
     @Test
     @DisplayName("Signup")

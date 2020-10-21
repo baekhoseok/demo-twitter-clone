@@ -20,6 +20,7 @@ public class AccountFullDto {
     private Integer followingsCount;
     private Integer followersCount;
     private Integer postsCount;
+    private String token;
 
     @QueryProjection
     public AccountFullDto(Long id, String username, String email, Integer followingsCount, Integer followersCount, Integer postsCount) {
