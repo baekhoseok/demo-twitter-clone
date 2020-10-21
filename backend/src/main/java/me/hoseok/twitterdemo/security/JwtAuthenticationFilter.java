@@ -1,7 +1,7 @@
 package me.hoseok.twitterdemo.security;
 
 import lombok.RequiredArgsConstructor;
-import me.hoseok.twitterdemo.Account.payload.SimpleAccount;
+import me.hoseok.twitterdemo.account.payload.Me;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -30,10 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = getJWTFromRequest(httpServletRequest);
             if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
-                SimpleAccount simpleAccount = jwtTokenProvider.getSimpleAccountFromJWT(jwt);
+                Me me = jwtTokenProvider.getSimpleAccountFromJWT(jwt);
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        simpleAccount,
+                        me,
                         null,
                         Collections.emptyList()
                 );

@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
-import me.hoseok.twitterdemo.Account.Account;
-import me.hoseok.twitterdemo.Account.payload.SimpleAccount;
+import me.hoseok.twitterdemo.account.payload.Me;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,16 +22,16 @@ public class JwtTokenProvider {
     private final ObjectMapper objectMapper;
 
     public String generateToken(Authentication authentication) throws JsonProcessingException {
-        SimpleAccount simpleAccount = (SimpleAccount)authentication.getPrincipal();
+        Me me = (Me)authentication.getPrincipal();
         Date now = new Date(System.currentTimeMillis());
         Date expireDate = new Date(now.getTime() + EXPIRATION_TIME);
 
-        String userId = Long.toString(simpleAccount.getId());
+        String userId = Long.toString( me.getId());
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", userId);
-        claims.put("username", simpleAccount.getUsername());
-        claims.put("fullName", simpleAccount.getFullName());
-        claims.put("email", simpleAccount.getEmail());
+        claims.put("username", me.getUsername());
+        claims.put("fullName", me.getFullName());
+        claims.put("email", me.getEmail());
 
         return Jwts.builder()
                 .setSubject(userId)
@@ -62,13 +60,13 @@ public class JwtTokenProvider {
         return false;
     }
 
-    public SimpleAccount getSimpleAccountFromJWT(String token) {
+    public Me getSimpleAccountFromJWT(String token) {
         Claims claims = Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
 
         Long id = Long.parseLong((String)claims.get("id"));
         String username = (String) claims.get("username");
         String fullName = (String) claims.get("fullName");
         String email = (String) claims.get("email");
-        return new SimpleAccount(id, username, fullName, email);
+        return new Me(id, username, fullName, email);
     }
 }

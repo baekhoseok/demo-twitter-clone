@@ -16,4 +16,28 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
         UsernameAlreadyExistsResponse response = new UsernameAlreadyExistsResponse(e.getMessage());
         return ResponseEntity.badRequest().body(response);
     }
+
+    @ExceptionHandler
+    public final ResponseEntity handlePostNotFoundException(PostNotFoundException e, WebRequest webRequest) {
+        PostNotFoundResponse response = new PostNotFoundResponse( e.getMessage() );
+        return ResponseEntity.badRequest().body( response );
+    }
+
+    @ExceptionHandler
+    public final ResponseEntity handleCommentNotFoundException(CommentNotFoundException e, WebRequest webRequest) {
+        CommentNotFoundResponse response = new CommentNotFoundResponse( e.getMessage() );
+        return ResponseEntity.badRequest().body( response );
+    }
+
+    @ExceptionHandler
+    public final ResponseEntity handleInvalidArgumentsException(InvalidArgumentsException e, WebRequest webRequest) {
+        InvalidArgumentsResponse response = new InvalidArgumentsResponse(e.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler
+    public final ResponseEntity handleAccountNotFoundException(AccountNotFoundException e, WebRequest webRequest) {
+        AccountNotFoundResponse response = new AccountNotFoundResponse(e.getMessage());
+        return ResponseEntity.badRequest().body(response);
+    }
 }

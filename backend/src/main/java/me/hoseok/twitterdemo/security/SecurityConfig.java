@@ -1,7 +1,6 @@
 package me.hoseok.twitterdemo.security;
 
 import lombok.RequiredArgsConstructor;
-import me.hoseok.twitterdemo.Account.AccountService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,14 +8,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import static me.hoseok.twitterdemo.security.SecurityConstants.H2_URL;
-import static me.hoseok.twitterdemo.security.SecurityConstants.SIGN_UP_URLS;
 
 @Configuration
 @EnableWebSecurity
@@ -26,10 +19,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final CustomAuthenticationEntryPoint unauthorizedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth
+//                .inMemoryAuthentication()
+//                .withUser("user").password("password").roles("USER");
+//    }
 
     @Bean
     @Override
