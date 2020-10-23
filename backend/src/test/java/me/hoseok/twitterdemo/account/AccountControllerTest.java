@@ -269,8 +269,8 @@ class AccountControllerTest extends BaseTest {
     @DisplayName("Follow")
     @WithAccount("user")
     public void followTest() throws Exception {
-        Account targetAccount = createAccountInDb("hoseok");
-        mockMvc.perform(post("/api/accounts/"+targetAccount.getId()+"/follow"))
+        Account targetAccount = createAccountInDb("admin");
+        mockMvc.perform(post("/api/accounts/follow/"+targetAccount.getId()))
                 .andExpect(status().isOk());
 
         em.flush();
@@ -288,8 +288,8 @@ class AccountControllerTest extends BaseTest {
     @WithAccount("user")
     public void followTest_fail_follow_self() throws Exception {
         Account me = accountRepository.findByUsername("user");
-        Account targetAccount = createAccountInDb("hoseok");
-        mockMvc.perform(post("/api/accounts/"+me.getId()+"/follow"))
+        Account targetAccount = createAccountInDb("admin");
+        mockMvc.perform(post("/api/accounts/follow/"+me.getId()))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("arguments").value("Can not follow your self"));
 
@@ -304,8 +304,8 @@ class AccountControllerTest extends BaseTest {
     @WithAccount("user")
     public void followTest_fail_follow_nobody() throws Exception {
         Account me = accountRepository.findByUsername("user");
-        Account targetAccount = createAccountInDb("hoseok");
-        mockMvc.perform(post("/api/accounts/123123/follow"))
+        Account targetAccount = createAccountInDb("admin");
+        mockMvc.perform(post("/api/accounts/follow/123123"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("account").value("Target Account not found"));
 
@@ -319,9 +319,9 @@ class AccountControllerTest extends BaseTest {
     @DisplayName("UnFollow")
     @WithAccount("user")
     public void unFollowTest() throws Exception {
-        Account targetAccount = createAccountInDb("hoseok");
+        Account targetAccount = createAccountInDb("admin");
         Account me = follow(targetAccount);
-        mockMvc.perform(post("/api/accounts/"+targetAccount.getId()+"/unFollow"))
+        mockMvc.perform(post("/api/accounts/unFollow/"+targetAccount.getId()))
                 .andExpect(status().isOk());
         em.flush();
         em.clear();

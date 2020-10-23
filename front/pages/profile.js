@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 import Router from 'next/router';
 import AppLayout from '../components/AppLayout';
-import NicknameEditForm from '../components/NicknameEditForm';
+import UsernameEditForm from '../components/UsernameEditForm';
 import FollowList from '../components/FollowList';
 
 const Profile = () => {
@@ -23,7 +23,7 @@ const Profile = () => {
         <title>Twitter Profile</title>
       </Head>
       <AppLayout>
-        <NicknameEditForm />
+        <UsernameEditForm />
         <FollowList header="following" data={me.Followings} />
         <FollowList header="follower" data={me.Followers} />
       </AppLayout>

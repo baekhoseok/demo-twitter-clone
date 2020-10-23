@@ -5,17 +5,14 @@ import me.hoseok.twitterdemo.account.payload.AccountFullDto;
 import me.hoseok.twitterdemo.account.payload.AccountMeDto;
 import me.hoseok.twitterdemo.account.payload.QAccountFullDto;
 import me.hoseok.twitterdemo.account.payload.QAccountMeDto;
-import me.hoseok.twitterdemo.follow.QFollow;
-import me.hoseok.twitterdemo.post.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 
 import javax.persistence.EntityManager;
 
 import static me.hoseok.twitterdemo.account.QAccount.*;
-import static me.hoseok.twitterdemo.follow.QFollow.*;
 
-public class AccountRepositoryImpl extends QuerydslRepositorySupport implements AccountReposirotyCustom{
+public class AccountRepositoryImpl extends QuerydslRepositorySupport implements AccountRepositoryCustom {
 
 
     private final JPAQueryFactory queryFactory;

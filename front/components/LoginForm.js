@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Form, Input, Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
@@ -17,13 +17,19 @@ const FromWrapper = styled(Form)`
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { loginLoading } = useSelector((state) => state.user);
+  const { loginLoading, loginError } = useSelector((state) => state.user);
   const [username, onChangeUsername] = useInput('');
   const [password, onChangePassword] = useInput('');
 
   const onSubmit = useCallback(() => {
     dispatch(loginReqAction({ username, password }));
   }, [username, password]);
+
+  useEffect(() => {
+    if (loginError) {
+      alert('Username and Password are not matched');
+    }
+  }, [loginError]);
 
   return (
     <FromWrapper onFinish={onSubmit}>

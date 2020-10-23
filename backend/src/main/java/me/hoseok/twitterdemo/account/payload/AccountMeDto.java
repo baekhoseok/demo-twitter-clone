@@ -34,7 +34,7 @@ public class AccountMeDto {
         this.followings = account.getFollowings().stream()
                 .map(f -> new AccountSimpleDto(f.getTo().getId(), f.getTo().getUsername()))
                 .collect(Collectors.toList());
-        this.followers = account.getFollowings().stream()
+        this.followers = account.getFollowers().stream()
                 .map(f -> new AccountSimpleDto(f.getFrom().getId(), f.getTo().getUsername()))
                 .collect(Collectors.toList());
     }

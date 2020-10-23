@@ -26,7 +26,6 @@ import static me.hoseok.twitterdemo.security.SecurityConstants.TOKEN_PREFIX;
 
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin
 @RequestMapping("/api/accounts")
 public class AccountController {
 
@@ -96,15 +95,15 @@ public class AccountController {
 //        return ResponseEntity.ok(new JwtLoginSuccessResponse(jwt));
     }
 
-    @PostMapping("/{targetId}/follow")
+    @PostMapping("/follow/{targetId}")
     public ResponseEntity follow(@AuthenticationPrincipal Me me, @PathVariable Long targetId) {
-        accountService.follow( me, targetId);
-        return ResponseEntity.ok().build();
+        Account account = accountService.follow(me, targetId);
+        return ResponseEntity.ok(new AccountSimpleDto(account.getId(), account.getUsername()));
     }
 
-    @PostMapping("/{targetId}/unFollow")
+    @PostMapping("/unFollow/{targetId}")
     public ResponseEntity unFollow(@AuthenticationPrincipal Me me, @PathVariable Long targetId) {
-        accountService.unFollow( me, targetId);
-        return ResponseEntity.ok().build();
+        Account account = accountService.unFollow(me, targetId);
+        return ResponseEntity.ok(new AccountSimpleDto(account.getId(), account.getUsername()));
     }
 }

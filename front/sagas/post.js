@@ -16,6 +16,12 @@ import {
   ADD_POST_REQ,
   ADD_POST_SUCCESS,
   ADD_POST_FAILURE,
+  LIKE_POST_REQ,
+  LIKE_POST_SUCCESS,
+  LIKE_POST_FAILURE,
+  UNLIKE_POST_REQ,
+  UNLIKE_POST_SUCCESS,
+  UNLIKE_POST_FAILURE,
   REMOVE_POST_REQ,
   REMOVE_POST_SUCCESS,
   REMOVE_POST_FAILURE,
@@ -27,16 +33,15 @@ import {
   generateDummyPosts } from '../reducers/post';
 
 function loadPostsApi(data) {
-  axios.get('/api/posts', data);
+  return axios.get(`/api/posts/search?page=${data.page}`);
 }
 
 function* loadPosts(action) {
   try {
-    // const result = call(addPostApi, action.data);
-    yield delay(1000);
+    const result = yield call(loadPostsApi, action.data);
     yield put({
       type: LOAD_POSTS_SUCCESS,
-      data: generateDummyPosts(10),
+      data: result.data,
     });
   } catch (error) {
     yield put({
@@ -51,21 +56,19 @@ function* watchLoadPosts() {
 }
 
 function addPostApi(data) {
-  axios.post('/api/post', data);
+  return axios.post('/api/posts', data);
 }
 
 function* addPost(action) {
   try {
-    // const result = call(addPostApi, action.data);
-    yield delay(1000);
-    const id = shortId.generate();
+    const result = yield call(addPostApi, action.data);
     yield put({
       type: ADD_POST_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
     yield put({
       type: ADD_POST_TO_ME,
-      data: id,
+      data: result.data.id,
     });
   } catch (error) {
     yield put({
@@ -80,21 +83,20 @@ function* watchAddPost() {
 }
 
 function removePostApi(data) {
-  axios.delete('/api/post', data);
+  return axios.delete(`/api/posts/${data}`);
 }
 
 function* removePost(action) {
   try {
-    // const result = call(removePostApi, action.data);
-    yield delay(1000);
-    const id = shortId.generate();
+    const result = yield call(removePostApi, action.data);
+    console.log(result);
     yield put({
       type: REMOVE_POST_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
     yield put({
       type: REMOVE_POST_OF_ME,
-      data: id,
+      data: result.data.id,
     });
   } catch (error) {
     yield put({
@@ -109,21 +111,20 @@ function* watchRemovePost() {
 }
 
 function addCommentApi(data) {
-  axios.post(`/api/post/${data.postId}/comment`, data);
+  return axios.post(`/api/posts/${data.postId}/comment`, data);
 }
 
 function* addComment(action) {
   try {
-    // const result = call(addPostApi, action.data);
-    yield delay(500);
+    const result = yield call(addCommentApi, action.data);
     yield put({
       type: ADD_COMMENT_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (error) {
     yield put({
       type: ADD_COMMENT_FAILURE,
-      data: error.response.data,
+      error: error.response.data,
     });
   }
 }
@@ -132,6 +133,54 @@ function* watchAddComment() {
   yield takeLatest(ADD_COMMENT_REQ, addComment);
 }
 
+function likePostApi(data) {
+  return axios.post(`/api/posts/${data}/like`);
+}
+
+function* likePost(action) {
+  try {
+    const result = yield call(likePostApi, action.data);
+    yield put({
+      type: LIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    console.log(error);
+    yield put({
+      type: LIKE_POST_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
+function* watchLikePost() {
+  yield takeLatest(LIKE_POST_REQ, likePost);
+}
+
+function unLikePostApi(data) {
+  return axios.delete(`/api/posts/${data}/like`);
+}
+
+function* unLikePost(action) {
+  try {
+    const result = yield call(unLikePostApi, action.data);
+    yield put({
+      type: UNLIKE_POST_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: UNLIKE_POST_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
+function* watchUnLikePost() {
+  yield takeLatest(UNLIKE_POST_REQ, unLikePost);
+}
+
 export default function* postSaga() {
-  yield all([fork(watchAddPost), fork(watchAddComment), fork(watchRemovePost), fork(watchLoadPosts)]);
+  yield all([fork(watchAddPost), fork(watchAddComment), fork(watchRemovePost), fork(watchLoadPosts),
+    fork(watchLikePost), fork(watchUnLikePost)]);
 }

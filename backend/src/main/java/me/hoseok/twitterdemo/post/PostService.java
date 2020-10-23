@@ -7,9 +7,13 @@ import me.hoseok.twitterdemo.account.payload.Me;
 import me.hoseok.twitterdemo.exception.PostNotFoundException;
 import me.hoseok.twitterdemo.like.Like;
 import me.hoseok.twitterdemo.like.LikeRepository;
+import me.hoseok.twitterdemo.post.payload.PostFullDto;
 import me.hoseok.twitterdemo.post.payload.PostReq;
 import me.hoseok.twitterdemo.post.payload.PostViewDto;
+import net.bytebuddy.utility.RandomString;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,8 +32,8 @@ public class PostService {
     private final LikeRepository likeRepository;
 
     @Transactional(readOnly = true)
-    public List<PostViewDto> search() {
-        return postRepository.findExtensionPosts();
+    public Page<PostFullDto> search(Pageable pageable) {
+        return postRepository.findFullPosts(pageable);
     }
 
     public Post createPost(PostReq postReq, Long accountId) {
@@ -50,11 +54,12 @@ public class PostService {
         return post;
     }
 
-    public void deletePost(Long postId) {
+    public Post deletePost(Long postId) {
         Optional<Post> byId = postRepository.findById( postId );
         byId.orElseThrow(() -> new PostNotFoundException( "Post not found" ) );
         Post post = byId.get();
         postRepository.delete( post );
+        return post;
     }
 
     @Transactional(readOnly = true)
@@ -62,18 +67,13 @@ public class PostService {
         return postRepository.findById( postId ).get();
     }
 
-    public void likePost(Long postId, Me me) {
-        Account account = accountRepository.findById(me.getId()).get();
-        Optional<Post> byId = postRepository.findById( postId );
-        Post post = byId.orElseThrow(() -> new PostNotFoundException( "Post not found" ) );
-        Like like = new Like(post, account);
-        post.getLikes().add(like);
-    }
-
-    public void unLikePost(Long postId, Me me) {
-        Optional<Post> byId = postRepository.findById( postId );
-        Post post = byId.orElseThrow(() -> new PostNotFoundException( "Post not found" ) );
-        Like like = likeRepository.findByPostIdAndAccountId(post.getId(), me.getId());
-        post.getLikes().remove(like);
+    public void makeTestPosts(Me me) {
+        Account account = accountRepository.findByUsername(me.getUsername());
+        Post post = null;
+        for (int i = 0; i < 30; i++) {
+            String value = "["+i+"]"+RandomString.make(30);
+            post = new Post(value, "seoul", account);
+            postRepository.save(post);
+        }
     }
 }

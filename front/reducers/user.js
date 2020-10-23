@@ -76,7 +76,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.loginLoading = false;
       draft.loginDone = true;
       draft.me = action.data;
-      console.log(action.data);
+
       break;
     case LOG_IN_FAILURE:
       draft.loginLoading = false;
@@ -111,6 +111,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case SIGN_UP_FAILURE:
       draft.signupLoading = false;
       draft.signupError = action.error;
+      console.log(draft.signupError);
       break;
     case CHANGE_USERNAME_REQ:
       draft.changeUsernameLoading = true;
@@ -131,9 +132,11 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.unfollowError = null;
       break;
     case UNFOLLOW_SUCCESS:
+      console.log('UNFOLLOW_SUCCESS BEGIN', action.data);
       draft.unfollowLoading = false;
       draft.unfollowDone = true;
-      draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data);
+      draft.me.followings = draft.me.followings.filter((v) => v.id !== action.data.id);
+      console.log('UNFOLLOW_SUCCESS END', action.data);
       break;
     case UNFOLLOW_FAILURE:
       draft.unfollowLoading = false;
@@ -145,19 +148,22 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.followError = null;
       break;
     case FOLLOW_SUCCESS:
+      console.log('FOLLOW_SUCCESS BEGIN', action.data);
+
       draft.followLoading = false;
       draft.followDone = true;
-      draft.me.Followings.push({ id: action.data });
+      draft.me.followings.push({ id: action.data.id });
+      console.log('FOLLOW_SUCCESS END', action.data);
       break;
     case FOLLOW_FAILURE:
       draft.followNicknameLoading = false;
       draft.followNicknameError = action.error;
       break;
     case ADD_POST_TO_ME:
-      draft.me.Posts.unshift({ id: action.data });
+      draft.me.posts.unshift({ id: action.data });
       break;
     case REMOVE_POST_OF_ME:
-      draft.me.Posts = draft.me.Posts.filter((v) => v.id !== action.data);
+      draft.me.posts = draft.me.posts.filter((v) => v.id !== action.data);
       break;
     default:
       break;

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "likes")
-public class Like {
+public class  Like {
 
     @Id @GeneratedValue
     private Long id;

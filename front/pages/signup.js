@@ -15,7 +15,7 @@ const ErrorMessage = styled.div`
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signupLoading, signupDone } = useSelector((state) => state.user);
+  const { signupLoading, signupDone, signupError } = useSelector((state) => state.user);
   const [email, onChangeEmail] = useInput('');
   const [username, onChangeUsername] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -54,6 +54,19 @@ const Signup = () => {
       Router.push('/');
     }
   }, [signupDone]);
+
+  useEffect(() => {
+    if (signupError) {
+      if (signupError.username && signupError.email) {
+        alert(`${signupError.username} / ${signupError.email}`);
+      } else if (signupError.username) {
+        alert(signupError.username);
+      } else if (signupError.email) {
+        alert(signupError.email);
+      }
+    }
+  }, [signupError]);
+
   return (
     <>
       <AppLayout>

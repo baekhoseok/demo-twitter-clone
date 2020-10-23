@@ -16,12 +16,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transient
+@Transactional
 public class AccountService implements UserDetailsService {
 
     private final AccountRepository accountRepository;
@@ -61,8 +63,8 @@ public class AccountService implements UserDetailsService {
         return accountRepository.save( account );
     }
 
-    public void follow(Me me, Long targetId) {
-        if(me.getId() == targetId) {
+    public Account follow(Me me, Long targetId) {
+        if(me.getId().equals(targetId)) {
             throw new InvalidArgumentsException("Can not follow your self");
         }
         Account myAccount = accountRepository.findById( me.getId() ).get();
@@ -73,10 +75,10 @@ public class AccountService implements UserDetailsService {
 //        myAccount.getFollowings().add( new Follow(myAccount, targetAccount));
 //        targetAccount.getFollowers().add( myAccount );
         followRepository.save(new Follow(myAccount, targetAccount));
-
+        return targetAccount;
     }
 
-    public void unFollow(Me me, Long targetId) {
+    public Account unFollow(Me me, Long targetId) {
         if(me.getId() == targetId) {
             throw new InvalidArgumentsException("Can not unFollow your self");
         }
@@ -88,6 +90,7 @@ public class AccountService implements UserDetailsService {
 //        myAccount.getFollowings().remove( targetAccount );
 //        targetAccount.getFollowers().remove( myAccount );
         followRepository.deleteByFromIdAndToId(myAccount.getId(), targetAccount.getId());
+        return targetAccount;
     }
 
     public Account update(AccountUpdateReq req, String username) {

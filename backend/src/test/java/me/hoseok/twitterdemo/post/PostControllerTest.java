@@ -6,6 +6,7 @@ import me.hoseok.twitterdemo.comment.Comment;
 import me.hoseok.twitterdemo.common.WithAccount;
 import me.hoseok.twitterdemo.image.Image;
 import me.hoseok.twitterdemo.like.Like;
+import me.hoseok.twitterdemo.post.payload.PostFullDto;
 import me.hoseok.twitterdemo.post.payload.PostReq;
 import me.hoseok.twitterdemo.post.payload.PostViewDto;
 import org.junit.jupiter.api.*;
@@ -65,7 +66,12 @@ class PostControllerTest extends BaseTest {
                         responseFields(
                                 fieldWithPath("id").description("identifier of new post"),
                                 fieldWithPath("content").description("content of new post"),
-                                fieldWithPath("location").description("location of new post")
+                                fieldWithPath("location").description("location of new post"),
+                                fieldWithPath("account.id").description("account id of new post"),
+                                fieldWithPath("account.username").description("account username of new post"),
+                                fieldWithPath("comments").description("comment list of new post"),
+                                fieldWithPath("images").description("image list of new post"),
+                                fieldWithPath("likes").description("like list of new post")
                         )
 
                 ));
@@ -237,7 +243,7 @@ class PostControllerTest extends BaseTest {
     public void unLikePostTest() throws Exception {
         Like like = likePost();
 
-        mockMvc.perform( delete("/api/posts/"+like.getPost().getId()+"/unLike")
+        mockMvc.perform( delete("/api/posts/"+like.getPost().getId()+"/like")
                 .contentType( MediaType.APPLICATION_JSON ) )
                 .andExpect( status().isOk() );
 
@@ -271,8 +277,8 @@ class PostControllerTest extends BaseTest {
     @Test
     @DisplayName("post load test")
     public void loadPosts() throws Exception {
-        System.out.println("[LOAD]=========================================");
-        List<PostViewDto> posts = postService.search();
-        posts.forEach(p -> System.out.println("[LOAD] "+p.toString()));
+//        System.out.println("[LOAD]=========================================");
+//        List<PostFullDto> posts = postService.search();
+//        posts.forEach(p -> System.out.println("[LOAD] "+p.toString()));
     }
 }

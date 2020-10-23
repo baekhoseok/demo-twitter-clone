@@ -4,22 +4,25 @@ import lombok.RequiredArgsConstructor;
 import me.hoseok.twitterdemo.account.AccountRepository;
 import me.hoseok.twitterdemo.account.payload.Me;
 import me.hoseok.twitterdemo.common.MapValidationErrorsService;
+import me.hoseok.twitterdemo.like.Like;
+import me.hoseok.twitterdemo.like.payload.LikeDto;
+import me.hoseok.twitterdemo.post.payload.PostFullDto;
 import me.hoseok.twitterdemo.post.payload.PostReq;
 import me.hoseok.twitterdemo.post.payload.PostRes;
-import me.hoseok.twitterdemo.post.payload.PostViewDto;
+import me.hoseok.twitterdemo.post.payload.PostSimpleDto;
+import me.hoseok.twitterdemo.security.CurrentMe;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,8 +55,8 @@ public class PostController {
 
     @GetMapping("/search")
     public ResponseEntity searchPost(String keyword, Model model,
-                                     @PageableDefault(size = 9, sort = "creatdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        List<PostViewDto> all = postService.search();
+                                     @PageableDefault(size = 10, page = 1, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostFullDto> all = postService.search(pageable);
         return ResponseEntity.ok( all );
     }
 
@@ -65,37 +68,33 @@ public class PostController {
     }
 
     @PostMapping()
-    public ResponseEntity createPost(@AuthenticationPrincipal Me me, @RequestBody @Valid PostReq postReq, Errors errors) {
+    public ResponseEntity createPost(@CurrentMe Me me, @RequestBody @Valid PostReq postReq, Errors errors) {
         ResponseEntity errorMap = mapValidationErrorsService.MapValidationErrorsService(errors);
         if(errorMap != null) return errorMap;
 
         Post post = postService.createPost(postReq, me.getId());
-        PostRes res = new PostRes(post.getId(), post.getContent(), post.getLocation());
+        PostFullDto res = new PostFullDto(post);
         return ResponseEntity.ok(res);
     }
 
     @PutMapping("/{postId}")
-    public ResponseEntity patchPost(@AuthenticationPrincipal Me me, @RequestBody PostReq postReq, @PathVariable Long postId) {
+    public ResponseEntity patchPost(@CurrentMe Me me, @RequestBody PostReq postReq, @PathVariable Long postId) {
         Post post = postService.patchPost(postReq, postId);
         PostRes res = new PostRes(post.getId(), post.getContent(), post.getLocation());
         return ResponseEntity.ok(res);
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity deletePost(@AuthenticationPrincipal Me me, @PathVariable Long postId) {
-        postService.deletePost(postId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity deletePost(@CurrentMe Me me, @PathVariable Long postId) {
+        Post post = postService.deletePost(postId);
+        return ResponseEntity.ok(new PostSimpleDto(post.getId(), post.getContent()));
     }
 
-    @PostMapping("/{postId}/like")
-    public ResponseEntity likePost(@AuthenticationPrincipal Me me, @PathVariable Long postId) {
-        postService.likePost(postId, me);
-        return ResponseEntity.ok().build();
-    }
 
-    @DeleteMapping("/{postId}/unLike")
-    public ResponseEntity unLikePost(@AuthenticationPrincipal Me me, @PathVariable Long postId) {
-        postService.unLikePost(postId, me);
+
+    @GetMapping("/makeTestPosts")
+    public ResponseEntity make(@CurrentMe  Me me) {
+        postService.makeTestPosts(me);
         return ResponseEntity.ok().build();
     }
 

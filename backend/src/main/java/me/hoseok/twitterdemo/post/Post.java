@@ -38,6 +38,12 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval=true)
     private Set<Like> likes = new HashSet<>();
 
+    public Post(String content, String location, Account account) {
+        this.content = content;
+        this.location = location;
+        this.account = account;
+    }
+
     public Post(String content, String location) {
         this.content = content;
         this.location = location;

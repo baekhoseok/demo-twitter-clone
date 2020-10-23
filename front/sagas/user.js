@@ -25,9 +25,10 @@ import {
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
 } from '../reducers/user';
+import setJWTToken from '../securityUtils/setJWTToken';
 
 function loginApi(data) {
-  return axios.post('http://localhost:8080/api/accounts/login', data);
+  return axios.post('/api/accounts/login', data);
 }
 
 function* login(action) {
@@ -37,10 +38,13 @@ function* login(action) {
       type: LOG_IN_SUCCESS,
       data: result.data,
     });
+    localStorage.setItem('jwtToken', result.data.token);
+    // set our token in header ***
+    setJWTToken(result.data.token);
   } catch (error) {
     yield put({
       type: LOG_IN_FAILURE,
-      data: error.response.data,
+      error: error.response.data,
     });
   }
 }
@@ -73,7 +77,7 @@ function* watchLogOut() {
 }
 
 function signupApi(data) {
-  return axios.post('http://localhost:8080/api/accounts/signup', data);
+  return axios.post('/api/accounts/signup', data);
 }
 function* signup(action) {
   try {
@@ -86,7 +90,7 @@ function* signup(action) {
   } catch (error) {
     yield put({
       type: SIGN_UP_FAILURE,
-      data: error.response.data,
+      error: error.response.data,
     });
   }
 }
@@ -95,16 +99,15 @@ function* watchSignup() {
   yield takeLatest(SIGN_UP_REQ, signup);
 }
 
-function unfollowApi() {
-  axios.post('/api/unfollow');
+function unfollowApi(data) {
+  return axios.post(`/api/accounts/unFollow/${data}`);
 }
 function* unfollow(action) {
   try {
-    // const result = call(logoutApi);
-    yield delay(1000);
+    const result = yield call(unfollowApi, action.data);
     yield put({
       type: UNFOLLOW_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (error) {
     yield put({
@@ -118,21 +121,20 @@ function* watchUnfollow() {
   yield takeLatest(UNFOLLOW_REQ, unfollow);
 }
 
-function followApi() {
-  axios.post('/api/follow');
+function followApi(data) {
+  return axios.post(`/api/accounts/follow/${data}`);
 }
 function* follow(action) {
   try {
-    // const result = call(logoutApi);
-    yield delay(1000);
+    const result = yield call(followApi, action.data);
     yield put({
       type: FOLLOW_SUCCESS,
-      data: action.data,
+      data: result.data,
     });
   } catch (error) {
     yield put({
       type: FOLLOW_FAILURE,
-      data: error.response.data,
+      error: error.response.data,
     });
   }
 }

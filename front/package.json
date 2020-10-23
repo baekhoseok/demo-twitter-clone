@@ -7,7 +7,6 @@
     "dev": "next",
     "build": "next build"
   },
-  "proxy": "http://localhost:8080",
   "author": "hoseok",
   "license": "ISC",
   "dependencies": {
