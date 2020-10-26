@@ -24,6 +24,9 @@ export const initialState = {
   addCommentLoading: false,
   addCommentDone: false,
   addCommentError: null,
+  uploadImagesLoading: false,
+  uploadImagesDone: false,
+  uploadImagesError: null,
   pageIndex: 0,
 
 };
@@ -44,11 +47,15 @@ export const LIKE_POST_FAILURE = 'LIKE_POST_FAILURE';
 export const UNLIKE_POST_REQ = 'UNLIKE_POST_REQ';
 export const UNLIKE_POST_SUCCESS = 'UNLIKE_POST_SUCCESS';
 export const UNLIKE_POST_FAILURE = 'UNLIKE_POST_FAILURE';
+export const UPLOAD_IMAGES_REQ = 'UPLOAD_IMAGES_REQ';
+export const UPLOAD_IMAGES_SUCCESS = 'UPLOAD_IMAGES_SUCCESS';
+export const UPLOAD_IMAGES_FAILURE = 'UPLOAD_IMAGES_FAILURE';
 
 export const ADD_COMMENT_REQ = 'ADD_COMMENT_REQ';
 export const ADD_COMMENT_SUCCESS = 'ADD_COMMENT_SUCCESS';
 export const ADD_COMMENT_FAILURE = 'ADD_COMMENT_FAILURE';
 
+export const REMOVE_IMAGE = 'REMOVE_IMAGE';
 export const ADD_POST_TO_ME = 'ADD_POST_TO_ME';
 export const REMOVE_POST_OF_ME = 'REMOVE_POST_OF_ME';
 
@@ -64,6 +71,21 @@ export const addComment = (data) => ({
 
 const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
+    case UPLOAD_IMAGES_REQ:
+      draft.uploadImagesLoading = true;
+      draft.uploadImagesDone = false;
+      draft.uploadImagesError = null;
+      break;
+    case UPLOAD_IMAGES_SUCCESS:
+      draft.imagePaths = action.data;
+      draft.uploadImagesLoading = false;
+      draft.uploadImagesDone = true;
+      break;
+    case UPLOAD_IMAGES_FAILURE:
+      draft.uploadImagesLoading = false;
+      draft.uploadImagesError = action.error;
+      break;
+
     case LOAD_POSTS_REQ:
       draft.loadPostsLoading = true;
       draft.loadPostsDone = false;
@@ -89,6 +111,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.posts.unshift(action.data);
       draft.addPostLoading = false;
       draft.addPostDone = true;
+      draft.imagePaths = [];
       break;
     case ADD_POST_FAILURE:
       draft.addPostLoading = false;
@@ -156,6 +179,10 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ADD_COMMENT_FAILURE:
       draft.addCommentLoading = false;
       draft.addCommentError = action.error;
+      break;
+    case REMOVE_IMAGE:
+      const index = draft.imagePaths.findIndex((v, i) => i === action.index);
+      draft.imagePaths.splice(index, 1);
       break;
     default:
       return state;

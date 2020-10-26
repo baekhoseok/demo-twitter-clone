@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 public class ImageSimpleDto {
     private Long id;
     private Long postId;
-    private String url;
+    private String src;
 
     @QueryProjection
-    public ImageSimpleDto(Long id, Long postId, String url) {
+    public ImageSimpleDto(Long id, Long postId, String src) {
         this.id = id;
         this.postId = postId;
-        this.url = url;
+        this.src = src;
     }
 }

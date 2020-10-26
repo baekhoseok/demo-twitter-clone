@@ -18,12 +18,18 @@ import {
   SIGN_UP_REQ,
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE,
+  CHANGE_USERNAME_REQ,
+  CHANGE_USERNAME_SUCCESS,
+  CHANGE_USERNAME_FAILURE,
   UNFOLLOW_REQ,
   UNFOLLOW_SUCCESS,
   UNFOLLOW_FAILURE,
   FOLLOW_REQ,
   FOLLOW_SUCCESS,
   FOLLOW_FAILURE,
+  REMOVE_FOLLOWER_REQ,
+  REMOVE_FOLLOWER_SUCCESS,
+  REMOVE_FOLLOWER_FAILURE,
 } from '../reducers/user';
 import setJWTToken from '../securityUtils/setJWTToken';
 
@@ -143,7 +149,51 @@ function* watchFollow() {
   yield takeLatest(FOLLOW_REQ, follow);
 }
 
+function changeUsernameApi(data) {
+  return axios.put(`/api/accounts/${data}`);
+}
+function* changeUsername(action) {
+  try {
+    const result = yield call(changeUsernameApi, action.data);
+    yield put({
+      type: CHANGE_USERNAME_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: CHANGE_USERNAME_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
+function* watchChangeUsername() {
+  yield takeLatest(CHANGE_USERNAME_REQ, changeUsername);
+}
+
+function removeFollowerApi(data) {
+  return axios.delete(`/api/accounts/follower/${data}`);
+}
+function* removeFollower(action) {
+  try {
+    const result = yield call(removeFollowerApi, action.data);
+    yield put({
+      type: REMOVE_FOLLOWER_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: REMOVE_FOLLOWER_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
+function* watchRemoveFollower() {
+  yield takeLatest(REMOVE_FOLLOWER_REQ, removeFollower);
+}
+
 export default function* userSaga() {
   yield all([fork(watchLogIn), fork(watchLogOut), fork(watchSignup),
-    fork(watchUnfollow), fork(watchFollow)]);
+    fork(watchUnfollow), fork(watchFollow), fork(watchChangeUsername), fork(watchRemoveFollower)]);
 }

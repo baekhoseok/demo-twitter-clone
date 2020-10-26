@@ -21,6 +21,9 @@ export const initialState = {
   unfollowLoading: false,
   unfollowDone: false,
   unfollowError: null,
+  removefollowerLoading: false,
+  removefollowerDone: false,
+  removefollowerError: null,
   signupData: {},
   loginData: {},
 };
@@ -43,6 +46,9 @@ export const UNFOLLOW_FAILURE = 'UNFOLLOW_FAILURE';
 export const FOLLOW_REQ = 'FOLLOW_REQ';
 export const FOLLOW_SUCCESS = 'FOLLOW_SUCCESS';
 export const FOLLOW_FAILURE = 'FOLLOW_FAILURE';
+export const REMOVE_FOLLOWER_REQ = 'REMOVE_FOLLOWER_REQ';
+export const REMOVE_FOLLOWER_SUCCESS = 'REMOVE_FOLLOWER_SUCCESS';
+export const REMOVE_FOLLOWER_FAILURE = 'REMOVE_FOLLOWER_FAILURE';
 
 const dummyUser = (data) => ({
   ...data,
@@ -121,6 +127,7 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case CHANGE_USERNAME_SUCCESS:
       draft.changeUsernameLoading = false;
       draft.changeUsernameDone = true;
+      draft.me.username = action.data.username;
       break;
     case CHANGE_USERNAME_FAILURE:
       draft.changeUsernameLoading = false;
@@ -148,16 +155,28 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.followError = null;
       break;
     case FOLLOW_SUCCESS:
-      console.log('FOLLOW_SUCCESS BEGIN', action.data);
-
       draft.followLoading = false;
       draft.followDone = true;
-      draft.me.followings.push({ id: action.data.id });
-      console.log('FOLLOW_SUCCESS END', action.data);
+      draft.me.followings.push({ id: action.data.id, username: action.data.username });
       break;
     case FOLLOW_FAILURE:
-      draft.followNicknameLoading = false;
-      draft.followNicknameError = action.error;
+      draft.followLoading = false;
+      draft.followError = action.error;
+      break;
+
+    case REMOVE_FOLLOWER_REQ:
+      draft.removeFollowerLoading = true;
+      draft.removeFollowerDone = false;
+      draft.removeFollowerError = null;
+      break;
+    case REMOVE_FOLLOWER_SUCCESS:
+      draft.removeFollowerLoading = false;
+      draft.removeFollowerDone = true;
+      draft.me.followers = draft.me.followers.filter((v) => v.id !== action.data.id);
+      break;
+    case REMOVE_FOLLOWER_FAILURE:
+      draft.removeFollowerLoading = false;
+      draft.removeFpllowerError = action.error;
       break;
     case ADD_POST_TO_ME:
       draft.me.posts.unshift({ id: action.data });

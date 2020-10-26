@@ -1,20 +1,35 @@
-import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
-import { Form, Input } from 'antd';
+import React, { useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Form, Input, Button } from 'antd';
+
+import useInput from '../hooks/useInput';
+import { CHANGE_USERNAME_REQ } from '../reducers/user';
 
 const UsernameEditForm = () => {
-  const style = useMemo(() => ({
-    marginBottom: '20px',
-    border: '1px solid @d9d9d9',
-    padding: '30px',
-  }));
+  const dispatch = useDispatch();
+  const { me, changeUsernameLoading } = useSelector((state) => state.user);
+  const [editedName, setEditedName] = useState('');
+
+  const onChangeNickname = useCallback((e) => {
+    setEditedName(e.target.value);
+    console.log(editedName);
+  }, [editedName]);
+
+  const onEditNickname = useCallback((e) => {
+    console.log('onEditUsername');
+    e.preventDefault();
+    dispatch({
+      type: CHANGE_USERNAME_REQ,
+      data: editedName,
+    });
+  }, [editedName]);
+
   return (
-    <Form style={style}>
-      <Input.Search addonBefore="username" enterButton="edit" />
+    <Form style={{ marginBottom: '20px', border: '1px solid #d9d9d9', padding: '20px' }} onSubmit={onEditNickname}>
+      <Input addonBefore="Username" value={editedName || (me && me.username)} onChange={onChangeNickname} />
+      <Button type="primary" htmlType="submit" loading={changeUsernameLoading} onClick={onEditNickname}>Edit</Button>
     </Form>
   );
 };
-
-UsernameEditForm.propTypes = {};
 
 export default UsernameEditForm;

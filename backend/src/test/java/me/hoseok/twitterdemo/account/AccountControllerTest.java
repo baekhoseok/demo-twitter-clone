@@ -71,10 +71,10 @@ class AccountControllerTest extends BaseTest {
     @DisplayName("Signup")
     public void signup() throws Exception {
         AccountSignupReq accountDto = AccountSignupReq.builder()
-                .username("hoseok")
+                .username("nobody")
                 .password("123456")
                 .passwordConfirm("123456")
-                .email("hoseok@naver.com")
+                .email("nobody@naver.com")
                 .build();
 
         mockMvc.perform(post("/api/accounts/signup")
@@ -112,26 +112,15 @@ class AccountControllerTest extends BaseTest {
     @WithAccount("user")
     public void updateAccount() throws Exception {
 
-        AccountUpdateReq accountDto = AccountUpdateReq.builder()
-                .username("hoseok")
-                .email("hoseok@naver.com")
-                .build();
-
-        mockMvc.perform(put("/api/accounts/user")
+        mockMvc.perform(put("/api/accounts/tommy")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(accountDto))
-
         )
                 .andExpect(status().isCreated())
                 .andDo(document("update-account",
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
-                        ),
-                        requestFields(
-                                fieldWithPath("username").description("username of new account"),
-                                fieldWithPath("email").description("email of new account")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
@@ -150,20 +139,12 @@ class AccountControllerTest extends BaseTest {
     @WithAccount("user")
     public void updateAccount_fail() throws Exception {
 
-        AccountUpdateReq accountDto = AccountUpdateReq.builder()
-                .username("user")
-                .email("user@naver.com")
-                .build();
-
-        mockMvc.perform(put("/api/accounts/user")
+        mockMvc.perform(put("/api/accounts/us")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(accountDto))
-
         )
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("username").value("Username is duplicated"))
-                .andExpect(jsonPath("email").value("Email is duplicated"))
+                .andExpect(jsonPath("error").exists())
         ;
     }
 

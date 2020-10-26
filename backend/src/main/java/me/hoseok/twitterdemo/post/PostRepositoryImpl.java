@@ -90,7 +90,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
 
     private Map<Long, List<ImageViewDto>> findImageViewDtos(List<Long> postIds) {
         List<ImageViewDto> viewDtos = queryFactory
-                .select( new QImageViewDto( image.id, post.id, image.url ) )
+                .select( new QImageViewDto( image.id, post.id, image.src ) )
                 .from( image )
 //                .leftJoin( image.post, post )
                 .where( image.post.id.in( postIds ) )
@@ -168,7 +168,7 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
 
     private Map<Long, List<ImageSimpleDto>> findImageSimpleDtos(List<Long> postIds) {
         List<ImageSimpleDto> viewDtos = queryFactory
-                .select( new QImageSimpleDto( image.id, post.id, image.url ) )
+                .select( new QImageSimpleDto( image.id, post.id, image.src ) )
                 .from( image )
                 .where( image.post.id.in( postIds ) )
                 .fetch();

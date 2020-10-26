@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import me.hoseok.twitterdemo.account.payload.*;
 import me.hoseok.twitterdemo.account.validator.AccountSignupValidator;
-import me.hoseok.twitterdemo.account.validator.AccountUpdateValidator;
 import me.hoseok.twitterdemo.common.MapValidationErrorsService;
-import me.hoseok.twitterdemo.security.JwtLoginSuccessResponse;
+import me.hoseok.twitterdemo.exception.ErrorResponse;
+import me.hoseok.twitterdemo.security.CurrentMe;
 import me.hoseok.twitterdemo.security.JwtTokenProvider;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -35,17 +35,11 @@ public class AccountController {
     private final JwtTokenProvider jwtTokenProvider;
     private final MapValidationErrorsService mapValidationErrorsService;
     private final AccountSignupValidator accountSignupValidator;
-    private final AccountUpdateValidator accountUpdateValidator;
     private final AccountRepository accountRepository;
 
     @InitBinder("accountSignupReq")
     public void signupInitBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(accountSignupValidator);
-    }
-
-    @InitBinder("accountUpdateReq")
-    public void updateInitBinder(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(accountUpdateValidator);
     }
 
     @PostMapping("/signup")
@@ -60,12 +54,19 @@ public class AccountController {
     }
 
     @PutMapping("/{username}")
-    public ResponseEntity updateAccount(@RequestBody @Valid AccountUpdateReq req, Errors errors, @PathVariable String username) {
+    public ResponseEntity updateAccount(@CurrentMe Me me, @PathVariable String username) {
 
-        ResponseEntity errorMap = mapValidationErrorsService.MapValidationErrorsService(errors);
-        if(errorMap != null) return errorMap;
+        if (username == null || username.length() < 4 || username.length() > 30) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Username must not null and has between 4 and 30 lengh"));
+        }
 
-        Account newAccount = accountService.update(req, username);
+        if (accountRepository.existsByUsername(username)) {
+            return ResponseEntity.badRequest().body(new ErrorResponse("Username is already exists"));
+        }
+//        ResponseEntity errorMap = mapValidationErrorsService.MapValidationErrorsService(errors);
+//        if(errorMap != null) return errorMap;
+
+        Account newAccount = accountService.update(me.getUsername(), username);
         return ResponseEntity.status(HttpStatus.CREATED).body(new AccountRes(newAccount));
     }
 
@@ -104,6 +105,12 @@ public class AccountController {
     @PostMapping("/unFollow/{targetId}")
     public ResponseEntity unFollow(@AuthenticationPrincipal Me me, @PathVariable Long targetId) {
         Account account = accountService.unFollow(me, targetId);
+        return ResponseEntity.ok(new AccountSimpleDto(account.getId(), account.getUsername()));
+    }
+
+    @DeleteMapping("/follower/{targetId}")
+    public ResponseEntity deleteFollower(@AuthenticationPrincipal Me me, @PathVariable Long targetId) {
+        Account account = accountService.removeFollower(me, targetId);
         return ResponseEntity.ok(new AccountSimpleDto(account.getId(), account.getUsername()));
     }
 }

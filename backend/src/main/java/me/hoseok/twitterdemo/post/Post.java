@@ -4,6 +4,7 @@ import lombok.*;
 import me.hoseok.twitterdemo.account.Account;
 import me.hoseok.twitterdemo.comment.Comment;
 import me.hoseok.twitterdemo.common.BaseEntity;
+import me.hoseok.twitterdemo.hashtag.PostHashTag;
 import me.hoseok.twitterdemo.image.Image;
 import me.hoseok.twitterdemo.like.Like;
 
@@ -37,6 +38,9 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval=true)
     private Set<Like> likes = new HashSet<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval=true)
+    private Set<PostHashTag> postHashTags = new HashSet<>();
 
     public Post(String content, String location, Account account) {
         this.content = content;

@@ -2,7 +2,6 @@ package me.hoseok.twitterdemo.account;
 
 import lombok.RequiredArgsConstructor;
 import me.hoseok.twitterdemo.account.payload.AccountSignupReq;
-import me.hoseok.twitterdemo.account.payload.AccountUpdateReq;
 import me.hoseok.twitterdemo.account.payload.Me;
 import me.hoseok.twitterdemo.exception.AccountNotFoundException;
 import me.hoseok.twitterdemo.exception.InvalidArgumentsException;
@@ -93,9 +92,22 @@ public class AccountService implements UserDetailsService {
         return targetAccount;
     }
 
-    public Account update(AccountUpdateReq req, String username) {
+    public Account update(String username, String newUsername) {
         Account account = accountRepository.findByUsername(username);
-        account.update(req);
+        account.updateUsername(newUsername);
         return account;
+    }
+
+    public Account removeFollower(Me me, Long targetId) {
+        if(me.getId() == targetId) {
+            throw new InvalidArgumentsException("Can not unFollow your self");
+        }
+        Account myAccount = accountRepository.findById( me.getId() ).get();
+        Optional<Account> targetAccountOptional = accountRepository.findById( targetId );
+        targetAccountOptional.orElseThrow(() -> new AccountNotFoundException( "Target Account not found" ));
+
+        Account targetAccount = targetAccountOptional.get();
+        followRepository.deleteByFromIdAndToId(targetAccount.getId(), myAccount.getId());
+        return targetAccount;
     }
 }

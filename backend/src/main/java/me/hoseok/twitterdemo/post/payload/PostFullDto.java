@@ -50,7 +50,7 @@ public class PostFullDto {
                                 new AccountSimpleDto(c.getAccount().getId(), c.getAccount().getUsername())
                                 )).collect(Collectors.toList());
         this.images = post.getImages().stream()
-                        .map(i -> new ImageSimpleDto(i.getId(),null, i.getUrl()))
+                        .map(i -> new ImageSimpleDto(i.getId(),null, i.getSrc()))
                         .collect(Collectors.toList());
         this.likes = post.getLikes().stream()
                         .map(l -> new LikeSimpleDto( null, l.getAccount().getId()))

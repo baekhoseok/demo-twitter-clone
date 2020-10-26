@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +23,7 @@ import static org.springframework.restdocs.headers.HeaderDocumentation.headerWit
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,10 +46,16 @@ class PostControllerTest extends BaseTest {
     @DisplayName("Post Creation")
     @WithAccount("user")
     public void createPostTest() throws Exception {
-        PostReq post = createPostDto(  "hahahah", "here" );
+        String content = "#동해물과 ###백두산이 #마르고 #마르고\n" +
+                "입니다. #닭도록 하느님의 ##보우하사";
+        PostReq post = createPostDto(  content, "here" );
 
         mockMvc.perform( post("/api/posts")
-                            .content( objectMapper.writeValueAsString( post ) )
+                            .param("content", post.getContent())
+                            .param("location", post.getLocation())
+                            .param("images", post.getImages().get(0))
+                            .param("images", post.getImages().get(1))
+                            .param("images", post.getImages().get(2))
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType( MediaType.APPLICATION_JSON ))
                         .andExpect( status().isOk() )
@@ -56,9 +64,10 @@ class PostControllerTest extends BaseTest {
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
-                        requestFields(
-                                fieldWithPath("content").description(" content of post"),
-                                fieldWithPath("location").description(" location of post")
+                        requestParameters(
+                                parameterWithName("content").description(" content of post"),
+                                parameterWithName("location").description(" location of post"),
+                                parameterWithName("images").description(" image list of post")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
@@ -70,7 +79,9 @@ class PostControllerTest extends BaseTest {
                                 fieldWithPath("account.id").description("account id of new post"),
                                 fieldWithPath("account.username").description("account username of new post"),
                                 fieldWithPath("comments").description("comment list of new post"),
-                                fieldWithPath("images").description("image list of new post"),
+                                fieldWithPath("images[].id").description("image id of new post"),
+                                fieldWithPath("images[].postId").description("image postId of new post"),
+                                fieldWithPath("images[].src").description("image src of new post"),
                                 fieldWithPath("likes").description("like list of new post")
                         )
 
@@ -104,8 +115,10 @@ class PostControllerTest extends BaseTest {
     public void updatePostTest() throws Exception {
         Post post = createPostInDb( );
         PostReq postReq = createPostDto(  "gagaga", "there" );
+        postReq.setImages(new ArrayList<>());
         mockMvc.perform( put("/api/posts/"+post.getId())
-                            .content( objectMapper.writeValueAsString(postReq) )
+                            .param("content", postReq.getContent())
+                            .param("location", postReq.getLocation())
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType( MediaType.APPLICATION_JSON ) )
                         .andDo( print() )
@@ -115,9 +128,9 @@ class PostControllerTest extends BaseTest {
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
-                        requestFields(
-                                fieldWithPath("content").description(" content of post"),
-                                fieldWithPath("location").description(" location of post")
+                        requestParameters(
+                                parameterWithName("content").description(" content of post"),
+                                parameterWithName("location").description(" location of post")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
@@ -261,7 +274,7 @@ class PostControllerTest extends BaseTest {
             Post post = new Post("content" + i, "location" + i);
             for (int j = 0; j < 10; j++) {
                 Comment comment = new Comment("comment" + j);
-                Image image = new Image("image-src" + j);
+                Image image = new Image("image-src" + j, post);
                 comment.setAccount( account );
                 post.addComment(comment);
                 post.addImage(image);

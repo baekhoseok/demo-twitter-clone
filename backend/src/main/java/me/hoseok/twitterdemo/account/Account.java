@@ -67,8 +67,7 @@ public class Account extends BaseEntity {
         post.setOwner(this);
     }
 
-    public void update(AccountUpdateReq req) {
-        this.username = req.getUsername();
-        this.email = req.getEmail();
+    public void updateUsername(String username) {
+        this.username = username;
     }
 }

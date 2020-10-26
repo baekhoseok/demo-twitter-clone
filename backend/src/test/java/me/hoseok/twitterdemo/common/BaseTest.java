@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,12 +49,17 @@ public class BaseTest {
     @Autowired protected FollowRepository followRepository;
 
     public PostReq createPostDto(String content, String location) {
-        return new PostReq( content, location );
+
+        return new PostReq( content, location, List.of(
+            "https://image.kpopmap.com/2019/08/ITZY_Yuna_ITz_Icy_teaser_image_11.png",
+                "https://i.pinimg.com/originals/88/a0/d4/88a0d45d471c0977037f1049bd4a4536.jpg",
+                "https://pbs.twimg.com/media/DzSuG1cV4AASBjk?format=jpg&name=large"
+        ) );
     }
 
     public Post createPostInDb() {
         Account account = accountRepository.findByUsername( "user" );
-        PostReq postReq = new PostReq( "hahaha", "here" );
+        PostReq postReq = createPostDto( "hahaha", "here" );
         Post post = modelMapper.map(postReq, Post.class );
         post.setAccount( account );
         postRepository.save( post );

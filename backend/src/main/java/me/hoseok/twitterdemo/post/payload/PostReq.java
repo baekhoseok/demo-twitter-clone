@@ -23,4 +23,5 @@ public class PostReq {
     @Size(min = 2, max = 256)
     private String content;
     private String location;
+    private List<String> images;
 }

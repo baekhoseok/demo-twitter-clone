@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import me.hoseok.twitterdemo.common.LoggingInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.resource.PathResourceResolver;
 
-@RequiredArgsConstructor
 @Configuration
 public class WebConfiguration implements WebMvcConfigurer {
 
@@ -22,5 +20,10 @@ public class WebConfiguration implements WebMvcConfigurer {
                 HttpMethod.POST.name(),
                 HttpMethod.PUT.name(),
                 HttpMethod.DELETE.name());
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/images/**").addResourceLocations("file:images/");
     }
 }

@@ -40,16 +40,17 @@ public class CustomServletWrapperFilter extends OncePerRequestFilter {
                     "[token] : {} ",
                     wrappingRequest.getHeader("Authorization")
             );
-            log.info(
-                    "[{}] {}?{} ReqBody : {} / [{}] ResBody : {}",
-                    wrappingRequest.getMethod(),
-                    wrappingRequest.getRequestURI(),
-                    objectMapper.writeValueAsString(wrappingRequest.getParameterMap()),
-                    objectMapper.readTree(wrappingRequest.getContentAsByteArray()),
-                    wrappingResponse.getStatus(),
-                    objectMapper.readTree(wrappingResponse.getContentAsByteArray())
-            );
-
+            if(!wrappingRequest.getRequestURI().contains("image")) {
+                log.info(
+                        "[REQ] [{}] {}?{} ReqBody : {} / [{}] ResBody : {}",
+                        wrappingRequest.getMethod(),
+                        wrappingRequest.getRequestURI(),
+                        objectMapper.writeValueAsString(wrappingRequest.getParameterMap()),
+                        objectMapper.readTree(wrappingRequest.getContentAsByteArray()),
+                        wrappingResponse.getStatus(),
+                        objectMapper.readTree(wrappingResponse.getContentAsByteArray())
+                );
+            }
 
             // Do not forget this line after reading response content or actual response will be empty!
             wrappingResponse.copyBodyToResponse();
