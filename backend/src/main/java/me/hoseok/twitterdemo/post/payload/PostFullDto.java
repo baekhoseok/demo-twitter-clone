@@ -17,6 +17,7 @@ import me.hoseok.twitterdemo.like.payload.LikeDto;
 import me.hoseok.twitterdemo.like.payload.LikeSimpleDto;
 import me.hoseok.twitterdemo.post.Post;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,15 +29,17 @@ public class PostFullDto {
     private Long id;
     private String content;
     private String location;
+    private LocalDateTime createdAt;
     private AccountSimpleDto account;
     private List<CommentFullDto> comments = new ArrayList<>();
     private List<ImageSimpleDto> images = new ArrayList<>();
     private List<LikeSimpleDto> likes = new ArrayList<>();
 
     @QueryProjection
-    public PostFullDto(Long id, String content, Account account) {
+    public PostFullDto(Long id, String content, LocalDateTime createdAt, Account account) {
         this.id = id;
         this.content = content;
+        this.createdAt = createdAt;
         this.account = new AccountSimpleDto(account.getId(), account.getUsername());
     }
 

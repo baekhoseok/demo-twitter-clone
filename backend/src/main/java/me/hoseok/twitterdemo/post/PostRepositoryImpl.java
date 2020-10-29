@@ -1,6 +1,7 @@
 package me.hoseok.twitterdemo.post;
 
 import com.querydsl.core.QueryResults;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,6 +9,8 @@ import me.hoseok.twitterdemo.comment.payload.CommentFullDto;
 import me.hoseok.twitterdemo.comment.payload.CommentViewDto;
 import me.hoseok.twitterdemo.comment.payload.QCommentFullDto;
 import me.hoseok.twitterdemo.comment.payload.QCommentViewDto;
+import me.hoseok.twitterdemo.hashtag.QHashTag;
+import me.hoseok.twitterdemo.hashtag.QPostHashTag;
 import me.hoseok.twitterdemo.image.payload.ImageSimpleDto;
 import me.hoseok.twitterdemo.image.payload.ImageViewDto;
 import me.hoseok.twitterdemo.image.payload.QImageSimpleDto;
@@ -34,6 +37,8 @@ import java.util.stream.Collectors;
 
 import static me.hoseok.twitterdemo.account.QAccount.*;
 import static me.hoseok.twitterdemo.comment.QComment.*;
+import static me.hoseok.twitterdemo.hashtag.QHashTag.*;
+import static me.hoseok.twitterdemo.hashtag.QPostHashTag.*;
 import static me.hoseok.twitterdemo.image.QImage.*;
 import static me.hoseok.twitterdemo.like.QLike.*;
 import static me.hoseok.twitterdemo.post.QPost.*;
@@ -142,9 +147,106 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
         return postFullDtos;
     }
 
+    @Override
+    public Page<PostFullDto> findFullPostsByAccount(Long accountId,  String value,Pageable pageable) {
+        Page<PostFullDto> postFullDtos =  findPostFullDtosByAccount(accountId, value, pageable);
+
+        List<Long> postIds = getFullPostIds(postFullDtos.getContent());
+
+        Map<Long, List<CommentFullDto>> commentFullDtoMap = findCommentFullDtos( postIds );
+
+        Map<Long, List<ImageSimpleDto>> imageSimpleDtoMap = findImageSimpleDtos( postIds );
+
+        Map<Long, List<LikeSimpleDto>> likeSimpleDtoMap = findLikeSimpleDtos( postIds );
+
+        postFullDtos.forEach( p -> {
+            List<CommentFullDto> fullDtos = commentFullDtoMap.get(p.getId());
+            if(fullDtos != null) {
+                p.setComments(fullDtos);
+            }
+        });
+        postFullDtos.forEach( p -> {
+            List<ImageSimpleDto> simpleDtos = imageSimpleDtoMap.get(p.getId());
+            if (simpleDtos != null) {
+                p.setImages(simpleDtos);
+            }
+        } );
+        postFullDtos.forEach( p -> {
+            List<LikeSimpleDto> simpleDtos = likeSimpleDtoMap.get(p.getId());
+            if (simpleDtos != null) {
+                p.setLikes(simpleDtos);
+            }
+        } );
+        return postFullDtos;
+    }
+
+    @Override
+    public Page<PostFullDto> findFullPostsByHashtag(String value, Pageable pageable) {
+        Page<PostFullDto> postFullDtos =  findPostFullDtosHashtag(value, pageable);
+
+        List<Long> postIds = getFullPostIds(postFullDtos.getContent());
+
+        Map<Long, List<CommentFullDto>> commentFullDtoMap = findCommentFullDtos( postIds );
+
+        Map<Long, List<ImageSimpleDto>> imageSimpleDtoMap = findImageSimpleDtos( postIds );
+
+        Map<Long, List<LikeSimpleDto>> likeSimpleDtoMap = findLikeSimpleDtos( postIds );
+
+        postFullDtos.forEach( p -> {
+            List<CommentFullDto> fullDtos = commentFullDtoMap.get(p.getId());
+            if(fullDtos != null) {
+                p.setComments(fullDtos);
+            }
+        });
+        postFullDtos.forEach( p -> {
+            List<ImageSimpleDto> simpleDtos = imageSimpleDtoMap.get(p.getId());
+            if (simpleDtos != null) {
+                p.setImages(simpleDtos);
+            }
+        } );
+        postFullDtos.forEach( p -> {
+            List<LikeSimpleDto> simpleDtos = likeSimpleDtoMap.get(p.getId());
+            if (simpleDtos != null) {
+                p.setLikes(simpleDtos);
+            }
+        } );
+        return postFullDtos;
+    }
+
+    private Page<PostFullDto> findPostFullDtosHashtag(String value, Pageable pageable) {
+
+        JPAQuery<PostFullDto> query = queryFactory
+                .select(new QPostFullDto(post.id, post.content, post.createdAt, post.account))
+                .from(post)
+                .leftJoin(post.postHashTags, postHashTag)
+                .where(
+                        hashtagEq(value)
+                );
+        JPQLQuery<PostFullDto> jpqlQuery = getQuerydsl().applyPagination(pageable, query);
+        QueryResults<PostFullDto> fetchResult = jpqlQuery.fetchResults();
+        return new PageImpl<>(fetchResult.getResults(), pageable, fetchResult.getTotal());
+    }
+
+
+
+
+    private Page<PostFullDto> findPostFullDtosByAccount(Long accountId, String value, Pageable pageable) {
+        JPAQuery<PostFullDto> query = queryFactory
+                .select(new QPostFullDto(post.id, post.content, post.createdAt, post.account))
+                .from(post)
+                .where(
+                        accountIdEq(accountId),
+                        containgsValue(value)
+                );
+        JPQLQuery<PostFullDto> jpqlQuery = getQuerydsl().applyPagination(pageable, query);
+        QueryResults<PostFullDto> fetchResult = jpqlQuery.fetchResults();
+        return new PageImpl<>(fetchResult.getResults(), pageable, fetchResult.getTotal());
+    }
+
+
     private Page<PostFullDto> findPostFullDtos(Pageable pageable) {
         JPAQuery<PostFullDto> query = queryFactory
-                .select(new QPostFullDto(post.id, post.content, post.account))
+                .select(new QPostFullDto(post.id, post.content, post.createdAt, post.account))
                 .from(post);
         JPQLQuery<PostFullDto> jpqlQuery = getQuerydsl().applyPagination(pageable, query);
         QueryResults<PostFullDto> fetchResult = jpqlQuery.fetchResults();
@@ -185,4 +287,17 @@ public class PostRepositoryImpl extends QuerydslRepositorySupport implements Pos
         Map<Long, List<LikeSimpleDto>> collect = viewDtos.stream().collect( Collectors.groupingBy( dto -> dto.getPostId() ) );
         return collect;
     }
+
+    private BooleanExpression containgsValue(String value) {
+        return value!=null ? post.content.contains(value) : null;
+    }
+
+    private BooleanExpression accountIdEq(Long accountId) {
+        return accountId != null ? post.account.id.eq(accountId) : null;
+    }
+
+    private BooleanExpression hashtagEq(String value) {
+        return value != null ? postHashTag.hashTag.name.eq(value) : null;
+    }
+
 }

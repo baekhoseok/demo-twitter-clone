@@ -8,6 +8,7 @@ import {
   delay,
 } from 'redux-saga/effects';
 import axios from 'axios';
+import Cookies from 'cookies';
 import {
   LOG_IN_REQ,
   LOG_IN_SUCCESS,
@@ -15,6 +16,12 @@ import {
   LOG_OUT_REQ,
   LOG_OUT_SUCCESS,
   LOG_OUT_FAILURE,
+  LOAD_ME_REQ,
+  LOAD_ME_SUCCESS,
+  LOAD_ME_FAILURE,
+  LOAD_USER_REQ,
+  LOAD_USER_SUCCESS,
+  LOAD_USER_FAILURE,
   SIGN_UP_REQ,
   SIGN_UP_SUCCESS,
   SIGN_UP_FAILURE,
@@ -34,7 +41,7 @@ import {
 import setJWTToken from '../securityUtils/setJWTToken';
 
 function loginApi(data) {
-  return axios.post('/api/accounts/login', data);
+  return axios.post('/api/accounts/login', data, { withCredentials: true });
 }
 
 function* login(action) {
@@ -44,6 +51,7 @@ function* login(action) {
       type: LOG_IN_SUCCESS,
       data: result.data,
     });
+    console.log('login result', result);
     localStorage.setItem('jwtToken', result.data.token);
     // set our token in header ***
     setJWTToken(result.data.token);
@@ -57,6 +65,54 @@ function* login(action) {
 
 function* watchLogIn() {
   yield takeLatest(LOG_IN_REQ, login);
+}
+
+function loadMeApi() {
+  return axios.get('/api/accounts/me');
+}
+
+function* loadMe() {
+  try {
+    const result = yield call(loadMeApi);
+    yield put({
+      type: LOAD_ME_SUCCESS,
+      data: result.data,
+    });
+    // localStorage.setItem('jwtToken', result.data.token);
+    // setJWTToken(result.data.token);
+  } catch (error) {
+    yield put({
+      type: LOAD_ME_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
+function* watchLoadMe() {
+  yield takeLatest(LOAD_ME_REQ, loadMe);
+}
+
+function loadUserApi(accountId) {
+  return axios.get(`/api/accounts/id/${accountId}`);
+}
+
+function* loadUser(action) {
+  try {
+    const result = yield call(loadUserApi, action.data);
+    yield put({
+      type: LOAD_USER_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: LOAD_USER_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
+function* watchLoadUser() {
+  yield takeLatest(LOAD_USER_REQ, loadUser);
 }
 
 function logoutApi() {
@@ -88,7 +144,6 @@ function signupApi(data) {
 function* signup(action) {
   try {
     const result = yield call(signupApi, action.data);
-    console.log(result);
     yield put({
       type: SIGN_UP_SUCCESS,
       data: result.data,
@@ -194,6 +249,15 @@ function* watchRemoveFollower() {
 }
 
 export default function* userSaga() {
-  yield all([fork(watchLogIn), fork(watchLogOut), fork(watchSignup),
-    fork(watchUnfollow), fork(watchFollow), fork(watchChangeUsername), fork(watchRemoveFollower)]);
+  yield all([
+    fork(watchLogIn),
+    fork(watchLogOut),
+    fork(watchSignup),
+    fork(watchUnfollow),
+    fork(watchFollow),
+    fork(watchChangeUsername),
+    fork(watchRemoveFollower),
+    fork(watchLoadMe),
+    fork(watchLoadUser),
+  ]);
 }

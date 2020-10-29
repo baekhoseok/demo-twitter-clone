@@ -5,6 +5,9 @@ export const initialState = {
   loginLoading: false,
   loginDone: false,
   loginError: null,
+  loadMeLoading: false,
+  loadMeDone: false,
+  loadMeError: null,
   logoutLoading: false,
   logoutDone: false,
   logoutError: null,
@@ -26,6 +29,7 @@ export const initialState = {
   removefollowerError: null,
   signupData: {},
   loginData: {},
+  userInfo: {},
 };
 
 export const LOG_IN_REQ = 'LOG_IN_REQ';
@@ -34,6 +38,12 @@ export const LOG_IN_FAILURE = 'LOG_IN_FAILURE';
 export const LOG_OUT_REQ = 'LOG_OUT_REQ';
 export const LOG_OUT_SUCCESS = 'LOG_OUT_SUCCESS';
 export const LOG_OUT_FAILURE = 'LOG_OUT_FAILURE';
+export const LOAD_ME_REQ = 'LOAD_ME_REQ';
+export const LOAD_ME_SUCCESS = 'LOAD_ME_SUCCESS';
+export const LOAD_ME_FAILURE = 'LOAD_ME_FAILURE';
+export const LOAD_USER_REQ = 'LOAD_USER_REQ';
+export const LOAD_USER_SUCCESS = 'LOAD_USER_SUCCESS';
+export const LOAD_USER_FAILURE = 'LOAD_USER_FAILURE';
 export const SIGN_UP_REQ = 'SIGN_UP_REQ';
 export const SIGN_UP_SUCCESS = 'SIGN_UP_SUCCESS';
 export const SIGN_UP_FAILURE = 'SIGN_UP_FAILURE';
@@ -50,14 +60,6 @@ export const REMOVE_FOLLOWER_REQ = 'REMOVE_FOLLOWER_REQ';
 export const REMOVE_FOLLOWER_SUCCESS = 'REMOVE_FOLLOWER_SUCCESS';
 export const REMOVE_FOLLOWER_FAILURE = 'REMOVE_FOLLOWER_FAILURE';
 
-const dummyUser = (data) => ({
-  ...data,
-  username: 'pepe',
-  id: 1,
-  Posts: [],
-  Followings: [],
-  Followers: [],
-});
 export const loginReqAction = (data) => ({
   type: LOG_IN_REQ,
   data,
@@ -75,19 +77,53 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
   switch (action.type) {
     case LOG_IN_REQ:
       draft.loginLoading = true;
+      draft.loadMeLoading = true;
       draft.loginDone = false;
       draft.loginError = null;
       break;
     case LOG_IN_SUCCESS:
       draft.loginLoading = false;
+      draft.loadMeLoading = false;
       draft.loginDone = true;
       draft.me = action.data;
-
       break;
     case LOG_IN_FAILURE:
       draft.loginLoading = false;
+      draft.loadMeLoading = false;
       draft.loginDone = false;
       draft.loginError = action.error;
+      draft.me = null;
+      break;
+    case LOAD_ME_REQ:
+      draft.loadMeLoading = true;
+      draft.loadMeDone = false;
+      draft.loadMeError = null;
+      break;
+    case LOAD_ME_SUCCESS:
+      draft.loadMeLoading = false;
+      draft.loadMeDone = true;
+      draft.me = action.data;
+      break;
+    case LOAD_ME_FAILURE:
+      draft.loadMeLoading = false;
+      draft.loadMeDone = false;
+      draft.loadMeError = action.error;
+      draft.me = null;
+      break;
+    case LOAD_USER_REQ:
+      draft.loadUserLoading = true;
+      draft.loadUserDone = false;
+      draft.loadUserError = null;
+      break;
+    case LOAD_USER_SUCCESS:
+      draft.loadUserLoading = false;
+      draft.loadUserDone = true;
+      draft.userInfo = action.data;
+      break;
+    case LOAD_USER_FAILURE:
+      draft.loadUserLoading = false;
+      draft.loadUserDone = false;
+      draft.loadUserError = action.error;
       draft.me = null;
       break;
     case LOG_OUT_REQ:
@@ -117,7 +153,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case SIGN_UP_FAILURE:
       draft.signupLoading = false;
       draft.signupError = action.error;
-      console.log(draft.signupError);
       break;
     case CHANGE_USERNAME_REQ:
       draft.changeUsernameLoading = true;
@@ -139,11 +174,9 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.unfollowError = null;
       break;
     case UNFOLLOW_SUCCESS:
-      console.log('UNFOLLOW_SUCCESS BEGIN', action.data);
       draft.unfollowLoading = false;
       draft.unfollowDone = true;
       draft.me.followings = draft.me.followings.filter((v) => v.id !== action.data.id);
-      console.log('UNFOLLOW_SUCCESS END', action.data);
       break;
     case UNFOLLOW_FAILURE:
       draft.unfollowLoading = false;

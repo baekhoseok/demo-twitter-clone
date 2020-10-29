@@ -4,7 +4,9 @@ import me.hoseok.twitterdemo.account.payload.AccountFullDto;
 import me.hoseok.twitterdemo.account.payload.AccountMeDto;
 
 public interface AccountRepositoryCustom {
-    AccountFullDto findExtensionAccount(String username);
+    AccountFullDto findExtensionAccountByUsername(String username);
     AccountMeDto findAccountMe(String username);
+
+    AccountFullDto findExtensionAccountById(Long accountId);
 }
 

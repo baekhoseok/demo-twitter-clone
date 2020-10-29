@@ -8,44 +8,31 @@ import me.hoseok.twitterdemo.config.FileStorageProperties;
 import me.hoseok.twitterdemo.post.payload.*;
 import me.hoseok.twitterdemo.security.CurrentMe;
 import org.modelmapper.ModelMapper;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
-import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts")
+@RequestMapping("/api")
 public class PostController {
 
     private final PostRepository postRepository;
@@ -74,21 +61,35 @@ public class PostController {
 //        }
     }
 
-    @GetMapping("/search")
+    @GetMapping("/posts/search")
     public ResponseEntity searchPost(String keyword, Model model,
-                                     @PageableDefault(size = 10, page = 1, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+                                     @PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<PostFullDto> all = postService.search(pageable);
         return ResponseEntity.ok( all );
     }
 
-    @GetMapping("/{postId}")
-    public ResponseEntity getPost(@PathVariable Long postId) {
-        Post post = postService.getPost(postId);
-        PostRes res = new PostRes(post.getId(), post.getContent(), post.getLocation());
-        return ResponseEntity.ok(res);
+    @GetMapping("/posts/hashtag/search")
+    public ResponseEntity searchPost(String keyword, Model model, SearchDto searchDto,
+                                     @PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostFullDto> all = postService.searchHashtag(searchDto, pageable);
+        return ResponseEntity.ok( all );
     }
 
-    @PostMapping
+    @GetMapping("/posts/{accountId}/search")
+    public ResponseEntity searchPost(String keyword, Model model, @PathVariable Long accountId, SearchDto searchDto,
+                                     @PageableDefault(size = 10, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<PostFullDto> all = postService.searchPostsByAccountId(accountId, searchDto, pageable);
+        return ResponseEntity.ok( all );
+    }
+//
+//    @GetMapping("/posts/{postId}")
+//    public ResponseEntity getPost(@PathVariable Long postId) {
+//        Post post = postService.getPost(postId);
+//        PostRes res = new PostRes(post.getId(), post.getContent(), post.getLocation());
+//        return ResponseEntity.ok(res);
+//    }
+
+    @PostMapping("/posts")
     public ResponseEntity createPost(@CurrentMe Me me, @Valid PostReq postReq, Errors errors) {
         ResponseEntity errorMap = mapValidationErrorsService.MapValidationErrorsService(errors);
         if(errorMap != null) return errorMap;
@@ -98,8 +99,8 @@ public class PostController {
         return ResponseEntity.ok(res);
     }
 
-    @PutMapping("/{postId}")
-    public ResponseEntity updatePost(@CurrentMe Me me, @Valid PostReq postReq, Errors errors, @PathVariable Long postId) {
+    @PutMapping("/post/{postId}")
+    public ResponseEntity updatePost(@CurrentMe Me me, @Valid @RequestBody PostReq postReq, Errors errors, @PathVariable Long postId) {
         ResponseEntity errorMap = mapValidationErrorsService.MapValidationErrorsService(errors);
         if(errorMap != null) return errorMap;
 
@@ -108,21 +109,21 @@ public class PostController {
         return ResponseEntity.ok(res);
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/posts/{postId}")
     public ResponseEntity deletePost(@CurrentMe Me me, @PathVariable Long postId) {
         Post post = postService.deletePost(postId, me.getId());
-        return ResponseEntity.ok(new PostSimpleDto(post.getId(), post.getContent()));
+        return ResponseEntity.ok(new PostSimpleDto(post));
     }
 
 
 
-    @GetMapping("/makeTestPosts")
+    @GetMapping("/posts/makeTestPosts")
     public ResponseEntity make(@CurrentMe  Me me) {
         postService.makeTestPosts(me);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/images")
+    @PostMapping("/posts/images")
     public ResponseEntity uploadFile(@RequestParam("image") MultipartFile[] files) throws Exception{
 
         List<String> imageUris = new ArrayList<>();
@@ -169,11 +170,20 @@ public class PostController {
             imageUris.add(fileDownloadUri);
         }
 
-
-
-
-
         return ResponseEntity.ok(imageUris);
+    }
+
+    @PostMapping("/posts/{postId}/retweet")
+    public ResponseEntity retweet(@CurrentMe Me me, @PathVariable Long postId) {
+        Post post = postService.retweet(me, postId);
+        PostRetweetDto res = new PostRetweetDto(post);
+        return ResponseEntity.ok(res);
+    }
+
+    @GetMapping("/post/{postId}")
+    public ResponseEntity getPost(@PathVariable Long postId) {
+        Post post = postService.getPost(postId);
+        return ResponseEntity.ok(new PostFullDto(post));
     }
 
 }

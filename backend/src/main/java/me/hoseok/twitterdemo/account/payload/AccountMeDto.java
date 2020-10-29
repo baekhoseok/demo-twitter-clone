@@ -29,7 +29,7 @@ public class AccountMeDto {
         this.username = account.getUsername();
         this.email = account.getEmail();
         this.posts = account.getPosts().stream()
-                .map( p -> new PostSimpleDto(p.getId(), p.getContent()))
+                .map( p -> new PostSimpleDto(p))
                 .collect(Collectors.toList());
         this.followings = account.getFollowings().stream()
                 .map(f -> new AccountSimpleDto(f.getTo().getId(), f.getTo().getUsername()))

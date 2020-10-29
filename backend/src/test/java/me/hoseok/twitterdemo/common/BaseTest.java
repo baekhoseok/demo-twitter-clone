@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDoc
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,6 +60,16 @@ public class BaseTest {
 
     public Post createPostInDb() {
         Account account = accountRepository.findByUsername( "user" );
+        PostReq postReq = createPostDto( "hahaha", "here" );
+        Post post = modelMapper.map(postReq, Post.class );
+        post.setAccount( account );
+        postRepository.save( post );
+        return post;
+    }
+
+    @Rollback(value = false)
+    public Post createPostInDbByAnotherAccount(String username) {
+        Account account = createAccountInDb(username);
         PostReq postReq = createPostDto( "hahaha", "here" );
         Post post = modelMapper.map(postReq, Post.class );
         post.setAccount( account );

@@ -35,7 +35,6 @@ const PostForm = () => {
   }, [text]);
 
   const onChangeImage = useCallback((e) => {
-    console.log(e.target.files);
     const imageFormData = new FormData();
     [].forEach.call(e.target.files, (f) => {
       imageFormData.append('image', f);

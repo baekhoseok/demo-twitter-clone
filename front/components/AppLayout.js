@@ -1,13 +1,14 @@
-import React from "react";
-import PropTypes from "prop-types";
-import Link from "next/link";
-import { Menu, Input, Row, Col } from "antd";
-import styled from "styled-components";
-import { useSelector } from "react-redux";
-import { createGlobalStyle } from "styled-components";
+import React, { useCallback } from 'react';
+import PropTypes from 'prop-types';
+import Link from 'next/link';
+import { Menu, Input, Row, Col } from 'antd';
+import styled, { createGlobalStyle } from 'styled-components';
+import { useSelector } from 'react-redux';
+import Router from 'next/router';
 
-import LoginForm from "./LoginForm";
-import UserProfile from "./UserProfile";
+import LoginForm from './LoginForm';
+import UserProfile from './UserProfile';
+import useInput from '../hooks/useInput';
 
 const SearchInput = styled(Input.Search)`
   vertical-align: middle;
@@ -29,7 +30,14 @@ const Global = createGlobalStyle`
 `;
 
 const AppLayout = ({ children }) => {
-  const { me } = useSelector(state => state.user);
+  const [searchInput, onChangeSearchInput] = useInput('');
+  const { me, loadMeLoading } = useSelector((state) => state.user);
+  const onSearch = useCallback(() => {
+    if (searchInput) {
+      Router.push(`/hashtag/${searchInput}`);
+    }
+  }, [searchInput]);
+
   return (
     <div>
       <Global />
@@ -45,16 +53,27 @@ const AppLayout = ({ children }) => {
           </Link>
         </Menu.Item>
         <Menu.Item>
-          <Input.Search enterButton style={{ verticalAlign: "middle" }} />
+          <SearchInput
+            enterButton
+            value={searchInput}
+            onChange={onChangeSearchInput}
+            onSearch={onSearch}
+          />
         </Menu.Item>
-        <Menu.Item>
-          <Link href="/signup">
-            <a>Signup</a>
-          </Link>
-        </Menu.Item>
+        {!me && (
+          <Menu.Item>
+            <Link href="/signup">
+              <a>Signup</a>
+            </Link>
+          </Menu.Item>
+        )}
+
       </Menu>
       <Row gutter={8}>
         <Col xs={24} md={6}>
+          {
+            // !loadMeLoading ? (me ? <UserProfile /> : <LoginForm />) : null
+          }
           {me ? <UserProfile /> : <LoginForm />}
         </Col>
         <Col xs={24} md={12}>
@@ -75,7 +94,7 @@ const AppLayout = ({ children }) => {
 };
 
 AppLayout.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 export default AppLayout;

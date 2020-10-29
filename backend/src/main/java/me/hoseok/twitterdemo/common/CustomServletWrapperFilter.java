@@ -40,6 +40,13 @@ public class CustomServletWrapperFilter extends OncePerRequestFilter {
                     "[token] : {} ",
                     wrappingRequest.getHeader("Authorization")
             );
+//            log.info(
+//                    "[REQ] [{}] {}?{} ReqBody : / [{}] ResBody :",
+//                    wrappingRequest.getMethod(),
+//                    wrappingRequest.getRequestURI(),
+//                    objectMapper.writeValueAsString(wrappingRequest.getParameterMap()),
+//                    wrappingResponse.getStatus()
+//            );
             if(!wrappingRequest.getRequestURI().contains("image")) {
                 log.info(
                         "[REQ] [{}] {}?{} ReqBody : {} / [{}] ResBody : {}",

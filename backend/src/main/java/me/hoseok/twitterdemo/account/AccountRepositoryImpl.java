@@ -24,7 +24,7 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
     }
 
     @Override
-    public AccountFullDto findExtensionAccount(String username) {
+    public AccountFullDto findExtensionAccountByUsername(String username) {
         return queryFactory.select(new QAccountFullDto(
                 account.id,
                 account.username,
@@ -35,6 +35,21 @@ public class AccountRepositoryImpl extends QuerydslRepositorySupport implements 
                 ))
                 .from(account)
                 .where(account.username.eq(username))
+                .fetchOne();
+    }
+
+    @Override
+    public AccountFullDto findExtensionAccountById(Long id) {
+        return queryFactory.select(new QAccountFullDto(
+                account.id,
+                account.username,
+                account.email,
+                account.posts.size(),
+                account.followings.size(),
+                account.followers.size()
+                ))
+                .from(account)
+                .where(account.id.eq(id))
                 .fetchOne();
     }
 

@@ -42,6 +42,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval=true)
     private Set<PostHashTag> postHashTags = new HashSet<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post retweet;
+
     public Post(String content, String location, Account account) {
         this.content = content;
         this.location = location;

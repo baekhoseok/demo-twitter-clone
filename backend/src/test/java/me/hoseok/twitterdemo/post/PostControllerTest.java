@@ -95,6 +95,49 @@ class PostControllerTest extends BaseTest {
     }
 
     @Test
+    @DisplayName("Post Retweet")
+    @WithAccount("user")
+    @Rollback(value = false)
+    public void retweetPostTest() throws Exception {
+
+        Post post = createPostInDbByAnotherAccount( "user2" );
+
+        mockMvc.perform( post("/api/posts/"+post.getId()+"/retweet")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .contentType( MediaType.APPLICATION_JSON ))
+                        .andExpect( status().isOk() )
+                        .andDo(document("retweet-post",
+                        requestHeaders(
+                                headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
+                        ),
+                        responseHeaders(
+                                headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                        ),
+                        responseFields(
+                                fieldWithPath("id").description("identifier of retweet post"),
+                                fieldWithPath("retweet.id").description("content of retweet post"),
+                                fieldWithPath("retweet.content").description("content of retweet post"),
+                                fieldWithPath("retweet.location").description("location of retweet post"),
+                                fieldWithPath("retweet.account.id").description("account id of retweet post"),
+                                fieldWithPath("retweet.account.username").description("account username of retweet post"),
+                                fieldWithPath("retweet.comments").description("comment list of retweet post"),
+                                fieldWithPath("retweet.images[].id").description("image id of retweet post"),
+                                fieldWithPath("retweet.images[].postId").description("image postId of retweet post"),
+                                fieldWithPath("retweet.images[].src").description("image src of retweet post"),
+                                fieldWithPath("retweet.likes").description("like list of retweet post")
+                        )
+
+                ));
+
+        Account account = accountRepository.findByUsername( "user" );
+        Post retweetedPost = postRepository.findByRetweetId( post.getId() );
+        assertEquals( post.getContent(), retweetedPost.getRetweet().getContent() );
+        assertEquals( post.getLocation(), retweetedPost.getRetweet().getLocation() );
+
+    }
+
+    @Test
     @DisplayName("Post Creation Validation Error")
     @WithAccount("user")
     public void createPostTest_validation_error() throws Exception {
@@ -192,14 +235,13 @@ class PostControllerTest extends BaseTest {
     @WithAccount("user")
     public void getPostTest() throws Exception {
         Post post = createPostInDb( );
-        mockMvc.perform( get("/api/posts/"+post.getId())
+        mockMvc.perform( get("/api/post/"+post.getId())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType( MediaType.APPLICATION_JSON ) )
                 .andDo( print() )
                 .andExpect( status().isOk() )
                 .andExpect( jsonPath( "id" ).value( post.getId()) )
                 .andExpect( jsonPath( "content" ).value( post.getContent()) )
-                .andExpect( jsonPath( "location" ).value( post.getLocation()) )
                 .andDo(document("get-post",
                         requestHeaders(
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
@@ -209,9 +251,13 @@ class PostControllerTest extends BaseTest {
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
                         ),
                         responseFields(
-                                fieldWithPath("id").description("identifier of updated post"),
-                                fieldWithPath("content").description("content of updated post"),
-                                fieldWithPath("location").description("location of updated post")
+                                fieldWithPath("id").description("identifier of post"),
+                                fieldWithPath("content").description("content of post"),
+                                fieldWithPath("account.id").description("account's id of post"),
+                                fieldWithPath("account.username").description("account's username of post"),
+                                fieldWithPath("images[].id").description("image's id of post"),
+                                fieldWithPath("images[].postId").description("image's postId of post"),
+                                fieldWithPath("images[].src").description("image's src of post")
                         )
 
                 ));

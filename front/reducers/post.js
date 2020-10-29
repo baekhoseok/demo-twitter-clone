@@ -1,6 +1,4 @@
-import shortId from 'shortid';
 import produce from 'immer';
-import faker from 'faker';
 
 export const initialState = {
   posts: [],
@@ -9,6 +7,9 @@ export const initialState = {
   loadPostsLoading: false,
   loadPostsDone: false,
   loadPostsError: null,
+  loadPostLoading: false,
+  loadPostDone: false,
+  loadPostError: null,
   likePostsLoading: false,
   likePostsDone: false,
   likePostsError: null,
@@ -18,15 +19,22 @@ export const initialState = {
   addPostLoading: false,
   addPostDone: false,
   addPostError: null,
+  updatePostLoading: false,
+  updatePostDone: false,
+  updatePostError: null,
   removePostLoading: false,
   removePostDone: false,
   removePostError: null,
+  retweetPostLoading: false,
+  retweetPostDone: false,
+  retweetPostError: null,
   addCommentLoading: false,
   addCommentDone: false,
   addCommentError: null,
   uploadImagesLoading: false,
   uploadImagesDone: false,
   uploadImagesError: null,
+  singlePost: null,
   pageIndex: 0,
 
 };
@@ -34,12 +42,27 @@ export const initialState = {
 export const LOAD_POSTS_REQ = 'LOAD_POSTS_REQ';
 export const LOAD_POSTS_SUCCESS = 'LOAD_POSTS_SUCCESS';
 export const LOAD_POSTS_FAILURE = 'LOAD_POSTS_FAILURE';
+export const LOAD_USER_POSTS_REQ = 'LOAD_USER_POSTS_REQ';
+export const LOAD_USER_POSTS_SUCCESS = 'LOAD_USER_POSTS_SUCCESS';
+export const LOAD_USER_POSTS_FAILURE = 'LOAD_USER_POSTS_FAILURE';
+export const LOAD_HASHTAG_POSTS_REQ = 'LOAD_HASHTAG_POSTS_REQ';
+export const LOAD_HASHTAG_POSTS_SUCCESS = 'LOAD_HASHTAG_POSTS_SUCCESS';
+export const LOAD_HASHTAG_POSTS_FAILURE = 'LOAD_HASHTAG_POSTS_FAILURE';
+export const LOAD_POST_REQ = 'LOAD_POST_REQ';
+export const LOAD_POST_SUCCESS = 'LOAD_POST_SUCCESS';
+export const LOAD_POST_FAILURE = 'LOAD_POST_FAILURE';
 export const ADD_POST_REQ = 'ADD_POST_REQ';
 export const ADD_POST_SUCCESS = 'ADD_POST_SUCCESS';
 export const ADD_POST_FAILURE = 'ADD_POST_FAILURE';
+export const UPDATE_POST_REQ = 'UPDATE_POST_REQ';
+export const UPDATE_POST_SUCCESS = 'UPDATE_POST_SUCCESS';
+export const UPDATE_POST_FAILURE = 'UPDATE_POST_FAILURE';
 export const REMOVE_POST_REQ = 'REMOVE_POST_REQ';
 export const REMOVE_POST_SUCCESS = 'REMOVE_POST_SUCCESS';
 export const REMOVE_POST_FAILURE = 'REMOVE_POST_FAILURE';
+export const RETWEET_POST_REQ = 'RETWEET_POST_REQ';
+export const RETWEET_POST_SUCCESS = 'RETWEET_POST_SUCCESS';
+export const RETWEET_POST_FAILURE = 'RETWEET_POST_FAILURE';
 
 export const LIKE_POST_REQ = 'LIKE_POST_REQ';
 export const LIKE_POST_SUCCESS = 'LIKE_POST_SUCCESS';
@@ -87,11 +110,15 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       break;
 
     case LOAD_POSTS_REQ:
+    case LOAD_USER_POSTS_REQ:
+    case LOAD_HASHTAG_POSTS_REQ:
       draft.loadPostsLoading = true;
       draft.loadPostsDone = false;
       draft.loadPostsError = null;
       break;
     case LOAD_POSTS_SUCCESS:
+    case LOAD_USER_POSTS_SUCCESS:
+    case LOAD_HASHTAG_POSTS_SUCCESS:
       draft.posts = draft.posts.concat(action.data.content);
       draft.loadPostsLoading = false;
       draft.loadPostsDone = true;
@@ -99,8 +126,25 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.hasMorePost = !action.data.last;
       break;
     case LOAD_POSTS_FAILURE:
+    case LOAD_USER_POSTS_FAILURE:
+    case LOAD_HASHTAG_POSTS_FAILURE:
       draft.loadPostsLoading = false;
       draft.loadPostsError = action.error;
+      break;
+
+    case LOAD_POST_REQ:
+      draft.loadPostLoading = true;
+      draft.loadPostDone = false;
+      draft.loadPostError = null;
+      break;
+    case LOAD_POST_SUCCESS:
+      draft.singlePost = action.data;
+      draft.loadPostLoading = false;
+      draft.loadPostDone = true;
+      break;
+    case LOAD_POST_FAILURE:
+      draft.loadPostLoading = false;
+      draft.loadPostError = action.error;
       break;
     case ADD_POST_REQ:
       draft.addPostLoading = true;
@@ -116,6 +160,35 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
     case ADD_POST_FAILURE:
       draft.addPostLoading = false;
       draft.addPostError = action.error;
+      break;
+    case UPDATE_POST_REQ:
+      draft.updatePostLoading = true;
+      draft.updatePostDone = false;
+      draft.updatePostError = null;
+      break;
+    case UPDATE_POST_SUCCESS:
+      draft.updatePostLoading = false;
+      draft.updatePostDone = true;
+      draft.posts.find((v) => v.id === action.data.id).content = action.data.content;
+      break;
+    case UPDATE_POST_FAILURE:
+      draft.updatePostLoading = false;
+      draft.updatePostError = action.error;
+      break;
+    case RETWEET_POST_REQ:
+      draft.retweetPostLoading = true;
+      draft.retweetPostDone = false;
+      draft.retweetPostError = null;
+      break;
+    case RETWEET_POST_SUCCESS:
+      draft.posts.unshift(action.data);
+      draft.retweetPostLoading = false;
+      draft.retweetPostDone = true;
+      draft.imagePaths = [];
+      break;
+    case RETWEET_POST_FAILURE:
+      draft.retweetPostLoading = false;
+      draft.retweetPostError = action.error;
       break;
 
     case LIKE_POST_REQ:
@@ -156,7 +229,6 @@ const reducer = (state = initialState, action) => produce(state, (draft) => {
       draft.removePostError = null;
       break;
     case REMOVE_POST_SUCCESS:
-      console.log(action);
       draft.posts = draft.posts.filter((v) => v.id !== action.data.id);
       draft.removePostLoading = false;
       draft.removePostDone = true;

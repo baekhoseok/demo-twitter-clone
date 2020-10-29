@@ -17,6 +17,7 @@ import me.hoseok.twitterdemo.like.LikeRepository;
 import me.hoseok.twitterdemo.post.payload.PostFullDto;
 import me.hoseok.twitterdemo.post.payload.PostReq;
 import me.hoseok.twitterdemo.post.payload.PostViewDto;
+import me.hoseok.twitterdemo.post.payload.SearchDto;
 import net.bytebuddy.utility.RandomString;
 import org.hibernate.exception.ConstraintViolationException;
 import org.modelmapper.ModelMapper;
@@ -133,5 +134,32 @@ public class PostService {
             post = new Post(value, "seoul", account);
             postRepository.save(post);
         }
+    }
+
+    public Post retweet(Me me, Long postId) {
+        Account account = accountRepository.findByUsername(me.getUsername());
+        Post targetPost = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found"));
+
+        if(targetPost.getAccount().getId().equals(account.getId())) {
+            throw new InvalidArgumentsException("Can not retweet your post");
+        }
+
+        if (postRepository.existsByRetweetId(targetPost.getId())) {
+            throw new InvalidArgumentsException("Can not retweet the post what you already retweeted ");
+        }
+
+
+        Post retweetedPost = new Post("retweet", null, account);
+        retweetedPost.setRetweet(targetPost);
+        postRepository.save(retweetedPost);
+        return retweetedPost;
+    }
+
+    public Page<PostFullDto> searchPostsByAccountId(Long accountId, SearchDto searchDto, Pageable pageable) {
+        return postRepository.findFullPostsByAccount(accountId, searchDto.getValue(), pageable);
+    }
+
+    public Page<PostFullDto> searchHashtag(SearchDto searchDto, Pageable pageable) {
+        return postRepository.findFullPostsByHashtag(searchDto.getValue(), pageable);
     }
 }

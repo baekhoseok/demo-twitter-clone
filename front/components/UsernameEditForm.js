@@ -12,11 +12,9 @@ const UsernameEditForm = () => {
 
   const onChangeNickname = useCallback((e) => {
     setEditedName(e.target.value);
-    console.log(editedName);
   }, [editedName]);
 
   const onEditNickname = useCallback((e) => {
-    console.log('onEditUsername');
     e.preventDefault();
     dispatch({
       type: CHANGE_USERNAME_REQ,
