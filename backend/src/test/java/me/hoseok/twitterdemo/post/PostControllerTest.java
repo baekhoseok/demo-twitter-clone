@@ -8,6 +8,7 @@ import me.hoseok.twitterdemo.image.Image;
 import me.hoseok.twitterdemo.like.Like;
 import me.hoseok.twitterdemo.post.payload.PostFullDto;
 import me.hoseok.twitterdemo.post.payload.PostReq;
+import me.hoseok.twitterdemo.post.payload.PostUpdateReq;
 import me.hoseok.twitterdemo.post.payload.PostViewDto;
 import org.junit.jupiter.api.*;
 import org.springframework.http.HttpHeaders;
@@ -76,6 +77,7 @@ class PostControllerTest extends BaseTest {
                                 fieldWithPath("id").description("identifier of new post"),
                                 fieldWithPath("content").description("content of new post"),
                                 fieldWithPath("location").description("location of new post"),
+                                fieldWithPath("createdAt").description("created date of new post"),
                                 fieldWithPath("account.id").description("account id of new post"),
                                 fieldWithPath("account.username").description("account username of new post"),
                                 fieldWithPath("comments").description("comment list of new post"),
@@ -116,16 +118,20 @@ class PostControllerTest extends BaseTest {
                         ),
                         responseFields(
                                 fieldWithPath("id").description("identifier of retweet post"),
+                                fieldWithPath("location").description("location of retweet post"),
+                                fieldWithPath("content").description("content of retweet post"),
+                                fieldWithPath("account.id").description("account's id of retweet post"),
+                                fieldWithPath("account.username").description("account's username of retweet post"),
+                                fieldWithPath("comments").description("comments of retweet post"),
+                                fieldWithPath("images").description("images of retweet post"),
+                                fieldWithPath("likes").description("likes of retweet post"),
                                 fieldWithPath("retweet.id").description("content of retweet post"),
                                 fieldWithPath("retweet.content").description("content of retweet post"),
-                                fieldWithPath("retweet.location").description("location of retweet post"),
                                 fieldWithPath("retweet.account.id").description("account id of retweet post"),
                                 fieldWithPath("retweet.account.username").description("account username of retweet post"),
-                                fieldWithPath("retweet.comments").description("comment list of retweet post"),
                                 fieldWithPath("retweet.images[].id").description("image id of retweet post"),
                                 fieldWithPath("retweet.images[].postId").description("image postId of retweet post"),
-                                fieldWithPath("retweet.images[].src").description("image src of retweet post"),
-                                fieldWithPath("retweet.likes").description("like list of retweet post")
+                                fieldWithPath("retweet.images[].src").description("image src of retweet post")
                         )
 
                 ));
@@ -157,11 +163,9 @@ class PostControllerTest extends BaseTest {
     @WithAccount("user")
     public void updatePostTest() throws Exception {
         Post post = createPostInDb( );
-        PostReq postReq = createPostDto(  "gagaga", "there" );
-        postReq.setImages(new ArrayList<>());
-        mockMvc.perform( put("/api/posts/"+post.getId())
-                            .param("content", postReq.getContent())
-                            .param("location", postReq.getLocation())
+        PostUpdateReq postReq = new PostUpdateReq(  "gagaga", "there" );
+        mockMvc.perform( put("/api/post/"+post.getId())
+                            .content(objectMapper.writeValueAsString(postReq))
                             .accept(MediaType.APPLICATION_JSON)
                             .contentType( MediaType.APPLICATION_JSON ) )
                         .andDo( print() )
@@ -171,9 +175,9 @@ class PostControllerTest extends BaseTest {
                                 headerWithName(HttpHeaders.ACCEPT).description("accept header"),
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("content type header")
                         ),
-                        requestParameters(
-                                parameterWithName("content").description(" content of post"),
-                                parameterWithName("location").description(" location of post")
+                        requestFields(
+                                fieldWithPath("content").description(" content of post"),
+                                fieldWithPath("location").description(" location of post")
                         ),
                         responseHeaders(
                                 headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
@@ -198,7 +202,7 @@ class PostControllerTest extends BaseTest {
     public void updatePostTest_fail() throws Exception {
         Post post = createPostInDb(  );
         PostReq postReq = createPostDto(  "gagaga", "there" );
-        mockMvc.perform( put("/api/posts/222222")
+        mockMvc.perform( put("/api/post/222222")
                             .content( objectMapper.writeValueAsString(postReq) )
                             .contentType( MediaType.APPLICATION_JSON ) )
                         .andDo( print() )
@@ -253,11 +257,15 @@ class PostControllerTest extends BaseTest {
                         responseFields(
                                 fieldWithPath("id").description("identifier of post"),
                                 fieldWithPath("content").description("content of post"),
+                                fieldWithPath("location").description("location of post"),
+                                fieldWithPath("createdAt").description("created date of post"),
                                 fieldWithPath("account.id").description("account's id of post"),
                                 fieldWithPath("account.username").description("account's username of post"),
                                 fieldWithPath("images[].id").description("image's id of post"),
                                 fieldWithPath("images[].postId").description("image's postId of post"),
-                                fieldWithPath("images[].src").description("image's src of post")
+                                fieldWithPath("images[].src").description("image's src of post"),
+                                fieldWithPath("comments").description("comments  of post"),
+                                fieldWithPath("likes").description("likes  of post")
                         )
 
                 ));
