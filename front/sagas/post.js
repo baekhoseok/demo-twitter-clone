@@ -8,7 +8,6 @@ import {
   delay,
 } from 'redux-saga/effects';
 import axios from 'axios';
-import shortId from 'shortid';
 import {
   LOAD_POSTS_REQ,
   LOAD_POSTS_SUCCESS,
