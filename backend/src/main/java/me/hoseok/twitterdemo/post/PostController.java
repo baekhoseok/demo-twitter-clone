@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.hoseok.twitterdemo.account.AccountRepository;
 import me.hoseok.twitterdemo.account.payload.Me;
 import me.hoseok.twitterdemo.common.MapValidationErrorsService;
-import me.hoseok.twitterdemo.config.FileStorageProperties;
+import me.hoseok.twitterdemo.config.AppProperties;
 import me.hoseok.twitterdemo.post.payload.*;
 import me.hoseok.twitterdemo.security.CurrentMe;
 import org.modelmapper.ModelMapper;
@@ -40,7 +40,7 @@ public class PostController {
     private final AccountRepository accountRepository;
     private final ModelMapper modelMapper;
     private final MapValidationErrorsService mapValidationErrorsService;
-    private final FileStorageProperties fileStorageProperties;
+    private final AppProperties appProperties;
     private Path fileStorageLocation;
 
     @PostConstruct
@@ -138,7 +138,7 @@ public class PostController {
                 fileName = fileName.substring(0, idx) + System.currentTimeMillis()+"."+extension;
             System.out.println("extension = " + extension + " / fileName = " + fileName);
             }
-            this.fileStorageLocation = Paths.get(fileStorageProperties.getUploadDir())
+            this.fileStorageLocation = Paths.get(appProperties.getFileUploadDir())
                     .toAbsolutePath().normalize();
 
             try {

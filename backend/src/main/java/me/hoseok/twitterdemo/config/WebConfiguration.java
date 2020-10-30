@@ -8,12 +8,15 @@ import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.resource.PathResourceResolver;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfiguration implements WebMvcConfigurer {
+
+    private final AppProperties appProperties;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000")
+                .allowedOrigins(appProperties.getCorsUrl())
                 .allowCredentials(true)
                 .allowedMethods(
                 HttpMethod.GET.name(),

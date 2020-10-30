@@ -1,6 +1,6 @@
 package me.hoseok.twitterdemo;
 
-import me.hoseok.twitterdemo.config.FileStorageProperties;
+import me.hoseok.twitterdemo.config.AppProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableConfigurationProperties({
-        FileStorageProperties.class
+        AppProperties.class
 })
 public class TwitterDemoApplication {
 

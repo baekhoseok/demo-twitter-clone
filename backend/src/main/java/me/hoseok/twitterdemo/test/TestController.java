@@ -3,6 +3,7 @@ package me.hoseok.twitterdemo.test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 @RestController
 public class TestController {
 
+    @CrossOrigin
     @GetMapping("/")
     public ResponseEntity root() {
         return ResponseEntity.ok("Welcome");
