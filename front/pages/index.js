@@ -74,11 +74,13 @@ const Home = () => {
 export const getServerSideProps = wrapper.getServerSideProps(async (context) => {
   const cookies = new Cookies(context.req, context.res);
   console.log('cookies', cookies);
-  const jwtToken = cookies.get('jwtToken').replace('+', ' ');
-  setJWTToken(jwtToken);
-  context.store.dispatch({
-    type: LOAD_ME_REQ,
-  });
+  if (cookies.get('jwtToken') !== 'undefined') {
+    const jwtToken = cookies.get('jwtToken').replace('+', ' ');
+    setJWTToken(jwtToken);
+    context.store.dispatch({
+      type: LOAD_ME_REQ,
+    });
+  }
   context.store.dispatch({
     type: LOAD_POSTS_REQ,
     data: { page: 0 },
