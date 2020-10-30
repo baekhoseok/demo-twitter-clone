@@ -122,6 +122,7 @@ public class AccountController {
         accountMe.setToken(jwt);
         Cookie myCookie = new Cookie("jwtToken", URLEncoder.encode( jwt, "UTF-8" ));
         myCookie.setPath("/");
+        myCookie.setSecure(true);
 //        myCookie.setSecure(true);
 //        myCookie.set
         myCookie.setHttpOnly(true);

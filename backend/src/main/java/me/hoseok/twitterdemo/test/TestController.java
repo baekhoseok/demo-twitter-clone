@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 @RestController
 public class TestController {
 
-    @CrossOrigin
     @GetMapping("/")
     public ResponseEntity root() {
         return ResponseEntity.ok("Welcome");
